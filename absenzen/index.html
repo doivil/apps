@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Absenzen</title>
+<meta name="theme-color" content="#e2231a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Absenzen">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#f3f4f2; --surface:#fff; --sunk:#e9ebe7; --fg:#1d2226; --muted:#5d666d; --line:#d3d7d1;
+  --accent:#e2231a; --accent-ink:#ffffff; --steel:#2f4a5c; --ok:#2e7d4f; --ok-bg:#e3f2e8; --bad:#b3261e;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif; --r:6px;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#161a1d; --surface:#1f2428; --sunk:#262c31; --fg:#e8eae6; --muted:#9aa3a9; --line:#343b41;
+  --accent-ink:#ffffff; --steel:#8fb3c9; --ok:#7dcf9c; --ok-bg:#1d3326; --bad:#f19a92; color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.45}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(20px + env(safe-area-inset-top,0px)) calc(40px + env(safe-area-inset-bottom,0px))}
+header{display:grid;gap:14px;padding-bottom:14px;border-bottom:3px solid var(--accent);margin-bottom:22px}
+.logo{display:block;width:100%;max-width:100%;height:auto;background:#fff;border-radius:4px}
+h1{font-family:var(--f-display);font-weight:700;font-size:28px;line-height:1;margin:0}
+.sub{color:var(--muted);font-size:14px;margin-top:4px}
+form{display:grid;gap:20px}
+.field{display:grid;gap:6px}
+label,.lbl{font-weight:600;font-size:15px}
+.hint{color:var(--muted);font-size:13px;font-weight:400}
+input[type=text],input[type=date],input[type=number],textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);padding:11px 12px;width:100%;min-width:0;-webkit-appearance:none}
+textarea{min-height:76px;resize:vertical}
+:focus-visible{outline:2px solid var(--steel);outline-offset:2px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.row2>*{min-width:0}
+.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.seg.time{grid-template-columns:1fr}
+@media (min-width:520px){.seg.time{grid-template-columns:repeat(3,1fr)}}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{display:flex;flex-direction:column;gap:2px;justify-content:center;min-height:62px;padding:10px;border:1.5px solid var(--line);border-radius:var(--r);background:var(--surface);cursor:pointer;line-height:1.2}
+.seg label small{font-weight:400;color:var(--muted);font-size:13px}
+.seg input:checked+label{border-color:var(--fg);background:var(--accent);color:var(--accent-ink)}
+.seg input:checked+label small{color:var(--accent-ink)}
+.calc{font-size:13px;color:var(--muted)}
+.btn{font-family:var(--f-display);font-weight:700;font-size:20px;letter-spacing:.04em;text-transform:uppercase;padding:14px 20px;border-radius:var(--r);border:0;background:var(--accent);color:var(--accent-ink);cursor:pointer;width:100%}
+.btn:disabled{opacity:.5}
+.err{color:var(--bad);font-size:14px;font-weight:500}
+.done{background:var(--ok-bg);color:var(--ok);border-radius:var(--r);padding:18px;display:grid;gap:12px}
+.done b{font-family:var(--f-display);font-size:24px}
+.done .btn{background:var(--surface);color:var(--fg);border:1.5px solid var(--line);font-size:16px}
+[hidden]{display:none!important}
+.banner{background:#fff4d6;color:#5a3b00;border:1.5px solid #e6b84a;border-radius:var(--r);padding:12px 14px;font-size:15px;display:grid;gap:8px;margin-bottom:18px}
+.banner b{font-size:16px}
+.banner .copy{justify-self:start;font:inherit;font-weight:600;font-size:14px;padding:8px 12px;border-radius:var(--r);border:1.5px solid #c99a2e;background:#fff;color:#5a3b00;cursor:pointer}
+.help{margin-top:28px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+.help summary{cursor:pointer;font-weight:600}
+.help ul{margin:8px 0 0;padding-left:18px}
+@media (max-width:400px){.row2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img class="logo" alt="H. Reich AG – Tiefbau, Strassenbau, Pflästerungen" src="data:image/png;base64,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">
+    <div><h1>Absenzen-/Ferienmeldung</h1><div class="sub">Kurzabsenzen und Ferien melden</div></div>
+  </header>
+
+  <div id="inapp" class="banner" hidden>
+    <b>Bitte im Browser öffnen</b>
+    <span>Du hast den Link in einer App geöffnet (z.B. WhatsApp, Instagram). Dort klappt das Senden manchmal nicht. Tippe oben auf «…» oder «⋮» und wähle <strong>«In Safari öffnen»</strong> bzw. <strong>«In Chrome öffnen»</strong>.</span>
+    <button class="copy" type="button" id="copy-link">Link kopieren</button>
+  </div>
+
+  <div id="done" class="done" hidden>
+    <b>Meldung gesendet</b>
+    <div id="done-txt"></div>
+    <button class="btn" type="button" id="again">Weitere Meldung</button>
+  </div>
+
+  <form id="form" novalidate>
+    <div class="field">
+      <label for="f-name">Vorname und Name</label>
+      <input type="text" id="f-name" autocomplete="name" placeholder="z.B. Max Muster">
+    </div>
+
+    <div class="field">
+      <span class="lbl" id="art-lbl">Was möchtest du melden?</span>
+      <div class="seg" role="radiogroup" aria-labelledby="art-lbl">
+        <input type="radio" name="art" id="art-kurz" value="kurz" checked><label for="art-kurz"><span>Kurzabsenz</span><small>max. 1 Tag</small></label>
+        <input type="radio" name="art" id="art-ferien" value="ferien"><label for="art-ferien"><span>Ferien</span><small>ein oder mehrere Tage</small></label>
+      </div>
+    </div>
+
+    <div id="g-kurz" class="field" style="gap:20px">
+      <div class="field">
+        <label for="f-datum">An welchem Datum bist du abwesend?</label>
+        <input type="date" id="f-datum">
+      </div>
+      <div class="field">
+        <span class="lbl" id="zeit-lbl">Von wann bis wann?</span>
+        <div class="seg time" role="radiogroup" aria-labelledby="zeit-lbl">
+          <input type="radio" name="zeit" id="z-ganz" value="Ganztags" checked><label for="z-ganz">Ganztags</label>
+          <input type="radio" name="zeit" id="z-morgen" value="Vormittag (07.00-12.00 Uhr)"><label for="z-morgen">Vormittag<small>07.00–12.00 Uhr</small></label>
+          <input type="radio" name="zeit" id="z-nachm" value="Nachmittag (13.00-17.00 Uhr)"><label for="z-nachm">Nachmittag<small>13.00–17.00 Uhr</small></label>
+        </div>
+      </div>
+    </div>
+
+    <div id="g-ferien" class="field" style="gap:20px" hidden>
+      <div class="row2">
+        <div class="field"><label for="f-von">Erster Ferientag</label><input type="date" id="f-von"></div>
+        <div class="field"><label for="f-bis">Letzter Ferientag</label><input type="date" id="f-bis"></div>
+      </div>
+      <div class="field">
+        <label for="f-tage">Wieviele Ferientage total?</label>
+        <input type="number" id="f-tage" min="0.5" step="0.5" inputmode="decimal" style="max-width:160px">
+        <span class="calc" id="calc"></span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f-grund">Abwesenheitsgrund <span class="hint" id="grund-hint">(z.B. Arzt, Termin, privat)</span></label>
+      <input type="text" id="f-grund" maxlength="200">
+    </div>
+    <div class="field">
+      <label for="f-notiz">Allfällige Anmerkungen <span class="hint">(freiwillig)</span></label>
+      <textarea id="f-notiz" maxlength="500"></textarea>
+    </div>
+
+    <div class="err" id="f-err" hidden></div>
+    <button class="btn" type="submit" id="f-send">Meldung senden</button>
+    <p class="hint" style="margin:0">Sommerferien bitte bis spätestens 28. Februar eingeben.</p>
+  </form>
+
+  <details class="help">
+    <summary>Probleme beim Melden?</summary>
+    <ul>
+      <li>Link in <b>Safari</b> (iPhone) oder <b>Chrome</b> (Android) öffnen, nicht direkt in WhatsApp.</li>
+      <li>Datum lässt sich nicht wählen: Datum so eintippen: <b>31.12.2026</b>.</li>
+      <li>Klappt es gar nicht: Meldung wie bisher im Büro abgeben.</li>
+    </ul>
+  </details>
+</div>
+
+<script>
+(function(){
+  var EXEC="https://script.google.com/macros/s/AKfycbz4k8Q5lqsz1ubxfySlYQ8CQKBsY13c4wspR5-zC05u9z0I8I8D0DXPgL3lfRLNSETswQ/exec";
+  var $=function(id){return document.getElementById(id)};
+  var pad=function(n){return String(n).padStart(2,"0")};
+  var iso=function(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
+  var parse=function(s){if(!s)return null;var p=s.split("-").map(Number);return new Date(p[0],p[1]-1,p[2])};
+  var ch=function(s){var p=s.split("-");return p[2]+"."+p[1]+"."+p[0]};
+  // Datumsfelder: alte Geräte ohne Kalender bekommen ein Textfeld TT.MM.JJJJ
+  var dateOK=(function(){var i=document.createElement("input");try{i.setAttribute("type","date")}catch(_){}i.value="x";return i.type==="date"&&i.value!=="x"})();
+  ["f-datum","f-von","f-bis"].forEach(function(id){if(!dateOK){var el=$(id);el.type="text";el.placeholder="TT.MM.JJJJ";el.inputMode="numeric";el.autocomplete="off"}});
+  function dval(id){var v=($(id).value||"").trim();if(!v)return "";
+    if(/^\d{4}-\d{2}-\d{2}$/.test(v))return v;
+    var m=v.match(/^(\d{1,2})[.\/\- ](\d{1,2})[.\/\- ](\d{2}|\d{4})$/);if(!m)return "bad";
+    var y=+m[3];if(y<100)y+=2000;var d=new Date(y,+m[2]-1,+m[1]);
+    if(d.getFullYear()!==y||d.getMonth()!==+m[2]-1||d.getDate()!==+m[1])return "bad";return iso(d)}
+  function dset(id,isoStr){$(id).value=dateOK?isoStr:ch(isoStr)}
+  // In-App-Browser (WhatsApp, Instagram, Facebook, Gmail-App …) erkennen
+  var ua=navigator.userAgent||"";
+  if(/FBAN|FBAV|FB_IAB|Instagram|WhatsApp|Line\/|Snapchat|GSA\/|; wv\)|MicroMessenger/i.test(ua))$("inapp").hidden=false;
+  $("copy-link").addEventListener("click",function(){var u=location.href.split("#")[0];
+    var b=this;function ok(){b.textContent="Link kopiert ✓"}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(u).then(ok,function(){window.prompt("Link kopieren:",u)})}else{window.prompt("Link kopieren:",u)}});
+  function easter(y){var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,da)}
+  var hc={};
+  function holidays(y){ // Feiertage Basel-Stadt
+    if(hc[y])return hc[y];var e=easter(y),add=function(n){var d=new Date(e);d.setDate(d.getDate()+n);return iso(d)},m={};
+    [[y+"-01-01","Neujahr"],[add(-2),"Karfreitag"],[add(1),"Ostermontag"],[y+"-05-01","Tag der Arbeit"],[add(39),"Auffahrt"],[add(50),"Pfingstmontag"],[y+"-08-01","Bundesfeier"],[y+"-12-25","Weihnachten"],[y+"-12-26","Stephanstag"]].forEach(function(x){m[x[0]]=x[1]});
+    return hc[y]=m;
+  }
+  function workdays(a,b){var s=parse(a),e=parse(b);if(!s||!e||e<s)return null;var n=0,hol=[],d=new Date(s),g=0;
+    while(d<=e&&g++<800){var k=iso(d),w=d.getDay(),h=holidays(d.getFullYear())[k];if(w!==0&&w!==6){if(h)hol.push(h);else n++}d.setDate(d.getDate()+1)}
+    return{n:n,hol:hol}}
+
+  var art=function(){return document.querySelector("input[name=art]:checked").value};
+  var touched=false;
+  function sync(){var a=art();$("g-kurz").hidden=a!=="kurz";$("g-ferien").hidden=a!=="ferien";
+    $("grund-hint").textContent=a==="kurz"?"(z.B. Arzt, Termin, privat)":"(freiwillig)";recalc()}
+  function recalc(){var a=dval("f-von"),b=dval("f-bis");var r=(a&&b&&a!=="bad"&&b!=="bad")?workdays(a,b):null;if(!r){$("calc").textContent="";return}
+    if(!touched)$("f-tage").value=r.n||"";
+    $("calc").textContent="Vorschlag: "+r.n+" Arbeitstag"+(r.n===1?"":"e")+" (Mo–Fr"+(r.hol.length?", ohne "+r.hol.join(", "):"")+"). Halbe Tage bitte anpassen."}
+  document.querySelectorAll("input[name=art]").forEach(function(r){r.addEventListener("change",sync)});
+  $("f-von").addEventListener("change",function(){var a=dval("f-von"),b=dval("f-bis");if(a&&a!=="bad"&&(!b||b==="bad"||b<a))dset("f-bis",a);touched=false;recalc()});
+  $("f-von").addEventListener("input",function(){if(!dateOK){touched=false;recalc()}});
+  $("f-bis").addEventListener("input",function(){if(!dateOK){touched=false;recalc()}});
+  $("f-bis").addEventListener("change",function(){touched=false;recalc()});
+  $("f-tage").addEventListener("input",function(){touched=true});
+  try{var n=localStorage.getItem("absenz-name");if(n)$("f-name").value=n}catch(_){}
+
+  function fail(t){$("f-err").textContent=t;$("f-err").hidden=!t}
+  $("form").addEventListener("submit",function(ev){
+    ev.preventDefault();fail("");
+    var a=art(),m={art:a,name:$("f-name").value.trim(),grund:$("f-grund").value.trim(),notiz:$("f-notiz").value.trim()};
+    if(!m.name){fail("Bitte deinen Namen eingeben.");$("f-name").focus();return}
+    var summary;
+    if(a==="kurz"){m.datum=dval("f-datum");m.zeit=document.querySelector("input[name=zeit]:checked").value;
+      if(!m.datum){fail("Bitte das Datum wählen.");return}
+      if(m.datum==="bad"){fail("Datum bitte so eingeben: 31.12.2026");$("f-datum").focus();return}
+      if(!m.grund){fail("Bitte einen Grund angeben.");$("f-grund").focus();return}
+      summary="Kurzabsenz am "+ch(m.datum)+", "+m.zeit+".";
+    }else{m.von=dval("f-von");m.bis=dval("f-bis");m.tage=Number(String($("f-tage").value).replace(",","."))||0;
+      if(!m.von||!m.bis){fail("Bitte ersten und letzten Ferientag wählen.");return}
+      if(m.von==="bad"||m.bis==="bad"){fail("Datum bitte so eingeben: 31.12.2026");return}
+      if(m.bis<m.von){fail("Der letzte Tag liegt vor dem ersten Tag.");return}
+      if(!m.tage){fail("Bitte die Anzahl Ferientage eingeben.");$("f-tage").focus();return}
+      summary="Ferien vom "+ch(m.von)+" bis "+ch(m.bis)+", "+m.tage+" Tag"+(m.tage==1?"":"e")+".";}
+    if(navigator.onLine===false){fail("Keine Internetverbindung. Bitte WLAN oder mobile Daten einschalten und nochmals senden.");return}
+    $("f-send").disabled=true;$("f-send").textContent="Wird gesendet …";
+    var ctrl=window.AbortController?new AbortController():null;
+    var timer=setTimeout(function(){if(ctrl)ctrl.abort()},30000);
+    function reset(){clearTimeout(timer);$("f-send").disabled=false;$("f-send").textContent="Meldung senden";}
+    fetch(EXEC,{method:"POST",credentials:"omit",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(m),signal:ctrl?ctrl.signal:undefined})
+      .then(function(r){return r.text()})
+      .then(function(t){var res;try{res=JSON.parse(t)}catch(_){throw new Error("Unerwartete Antwort vom Server.")}
+        if(!res.ok)throw new Error(res.error||"Unbekannter Fehler.");
+        reset();
+        try{localStorage.setItem("absenz-name",m.name)}catch(_){}
+        $("done-txt").textContent=summary+" Das Büro sieht deine Meldung jetzt.";
+        $("form").hidden=true;$("done").hidden=false;window.scrollTo(0,0);
+        ["f-datum","f-von","f-bis","f-tage","f-grund","f-notiz"].forEach(function(id){$(id).value=""});$("calc").textContent="";touched=false;})
+      .catch(function(e){reset();
+        var msg=e&&e.name==="AbortError"?"Keine Antwort vom Server. Bitte Verbindung prüfen und nochmals senden."
+          :(e&&/fetch|network|Load failed/i.test(e.message||"")?"Verbindung unterbrochen. Bitte nochmals senden.":(e&&e.message)||"bitte nochmals versuchen.");
+        fail("Senden hat nicht geklappt: "+msg);});
+  });
+  $("again").addEventListener("click",function(){$("done").hidden=true;$("form").hidden=false});
+  sync();
+})();
+</script>
+</body>
+</html>
