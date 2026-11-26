@@ -2,6 +2,6 @@
 
 | App | Adresse |
 |---|---|
-| Absenzen- & Ferienmeldung | https://liviodomeniconi-dev.github.io/apps/absenzen/ |
+| Absenzen- & Ferienmeldung | https://doivil.github.io/apps/absenzen/ |
 
 Die Apps speichern keine Daten auf GitHub. Meldungen gehen direkt in die Google-Tabellen der Firma.
