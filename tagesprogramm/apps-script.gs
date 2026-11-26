@@ -1,5 +1,5 @@
 /**
- * Datenquelle für die App «Tagesprogramm» (https://doivil.github.io/apps/gantt/).
+ * Datenquelle für die App «Tagesprogramm» (https://doivil.github.io/apps/tagesprogramm/).
  *
  * Einrichten (einmalig, ca. 5 Minuten):
  * 1. https://script.google.com → «Neues Projekt», Name «Tagesprogramm App».
