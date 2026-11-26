@@ -1,0 +1,23 @@
+{
+ "name": "Tagesprogramm H. Reich AG",
+ "short_name": "Tagesprogramm",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#f3f3f1",
+ "theme_color": "#e2231a",
+ "lang": "de",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any maskable"
+  }
+ ]
+}
