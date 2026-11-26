@@ -547,7 +547,7 @@ function renderList(){
 function load(csvText){const first=!MODEL;MODEL=buildModel(parseCSV(csvText));render();if(first)toToday(false)}
 
 /* Daten: Google-Apps-Script liefert die Zeilen des Blatts «Baustellen» (ohne Telefonnummern/E-Mails) */
-const EXEC="__EXEC__";
+const EXEC="https://script.google.com/macros/s/AKfycbwPsAg7WNbRlGyYQJqQJyf_D4OONOAeYe0XL7-uDukdVO7kSsOY1Zm7mGKpWDgbZ7gbPA/exec";
 function loadRows(rows){const first=!MODEL;MODEL=buildModel(rows);render();if(first)toToday(false)}
 let busy=false,lastFetch=0;
 function showStand(mod,extra){setStatus(extra==='offline'?'warn':'live',`Stand Tabelle: ${mod?fmtTS(new Date(mod)):'unbekannt'} · KW${isoWeek(TODAY)}${extra==='offline'?' · keine Verbindung, gespeicherter Stand':''}`)}
