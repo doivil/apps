@@ -93,6 +93,7 @@ button:focus-visible{outline:2px solid var(--bar);outline-offset:2px}
 .bgc.hol{background:repeating-linear-gradient(135deg,var(--hol-a) 0 6px,var(--hol-b) 6px 12px);box-shadow:inset 1px 0 0 var(--hol-edge),inset -1px 0 0 var(--hol-edge)}
 .bgc.hol span{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font:600 10.5px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--hol-fg);white-space:nowrap}
 .dy.hol{background:var(--hol-b);color:var(--hol-fg)}
+.dy.half{background:linear-gradient(90deg,transparent 50%,var(--hol-b) 50%)}
 .sw.hol{background:repeating-linear-gradient(135deg,var(--hol-a) 0 3px,var(--hol-b) 3px 6px);box-shadow:inset 0 0 0 1px var(--hol-edge)}
 .bgc.mon{border-left:1px solid var(--line)}
 .todayline{position:absolute;top:0;bottom:0;width:2px;background:var(--today);z-index:2;pointer-events:none}
@@ -172,7 +173,7 @@ tr:last-child td{border-bottom:none}
       <span><i class="sw abs"></i>Absenz</span>
       <span><i class="sw today"></i>Heute</span>
       <span><i class="sw off"></i>Wochenende</span>
-      <span><i class="sw hol"></i>Betriebsferien 18.12.–04.01.</span>
+      <span><i class="sw hol"></i>Betriebsferien 18.12. ab Mittag – 04.01.</span>
     </div>
     <div class="controls">
       <button id="btnLive" type="button" hidden>Neu laden</button>
@@ -207,11 +208,11 @@ tr:last-child td{border-bottom:none}
       <li>Quelle: Blatt «Baustellen» der Google-Tabelle TAGESPROGRAMM, bis zum Abschnitt «Abklärungen (ALLE)». Die Bauleiter-Blöcke danach und die Equipe Kevin sind ausgeblendet.</li>
       <li>Start = erstes Datum in «Personal/Fristen» (bei «start TT.MM.» dieses). Weitere Daten dort und in der Beschreibung erscheinen als Termine ◆.</li>
       <li>Dauer = «Tg» in Arbeitstagen (Mo–Fr). «2 x 0.5» = zwei Halbtage an aufeinanderfolgenden Arbeitstagen. Fehlt die Dauer, wird 1 Tg angenommen.</li>
-      <li>«KW40» = Montag dieser Woche, «Oktober 2026» = 1. Arbeitstag des Monats, «… Ende Jahr» = bis 17.12. (letzter Arbeitstag vor den Betriebsferien) Diese Balken sind schraffiert, ebenso Daten mit «?».</li>
+      <li>«KW40» = Montag dieser Woche, «Oktober 2026» = 1. Arbeitstag des Monats, «… Ende Jahr» = bis 18.12. Mittag (letzter, halber Arbeitstag vor den Betriebsferien). Diese Balken sind schraffiert, ebenso Daten mit «?».</li>
       <li>Ist «Personal/Fristen» leer, steht der Eintrag schraffiert ganz links am Beginn des Zeitplans. Dasselbe gilt für Einträge ohne festes Datum («KW…», «November», Datum mit «?»), deren Termin vor der Vorwoche liegt.</li>
       <li>Der Zeitplan beginnt am Montag der Vorwoche. Einsätze, die vorher schon beendet waren, stehen unter «Ohne festen Termin» als «vorbei».</li>
       <li>Absenzen werden aus der Spalte «Absenzen» der jeweiligen Equipe gelesen.</li>
-      <li>Betriebsferien 18.12.2026–04.01.2027 zählen wie Wochenenden nicht als Arbeitstage: Einsätze laufen danach weiter, Starts in dieser Zeit rücken auf den 05.01.</li>
+      <li>Der 18.12.2026 ist ein halber Arbeitstag (0.5 Tg, nur Vormittag). Die Betriebsferien vom 18.12. Mittag bis 04.01.2027 zählen wie Wochenenden nicht als Arbeitstage: Einsätze laufen danach weiter, Starts in dieser Zeit rücken auf den 05.01.</li>
     </ul>
   </details>
 </div>
@@ -221,9 +222,11 @@ tr:last-child td{border-bottom:none}
 const FILE_ID = "1D7_bevvPjkK4LbNuYi120CjII8s0nmu4qiAcg4qyJWk";
 const EXCLUDE_TEAMS = [/^kevin$/i];
 const STOP = /^(Abklärungen|Reich Roland|Amine|Elsa|Marcel|Rechnung|Spezielles)/i;
-const ENDE_JAHR = [17,12];
+const ENDE_JAHR = [18,12];
 // Betriebsferien: gelten wie Wochenenden als arbeitsfrei (jeweils inkl. Start- und Enddatum)
-const CLOSED = [[[18,12,2026],[4,1,2027]]];
+const CLOSED = [[[19,12,2026],[4,1,2027]]];
+// Halbe Arbeitstage (nur Vormittag)
+const HALF = [[18,12,2026]];
 // Entscheide aus der Abstimmung mit Livio; greifen nur, solange die Tabelle selbst nichts angibt
 const OVERRIDES = [
   {ort:/Aeschenvorstadt 56/i, ifNoTg:true, endDMY:[30,10,2026], note:"Dauer laut Absprache: bis Fr 30.10."},
@@ -236,6 +239,9 @@ const MONTHS = ["januar","februar","märz","april","mai","juni","juli","august",
 const addD=(dt,n)=>{const x=new Date(dt);x.setDate(x.getDate()+n);return x};
 const CLOSED_R=CLOSED.map(([a,b])=>[new Date(a[2],a[1]-1,a[0]),new Date(b[2],b[1]-1,b[0])]);
 const isWE=(dt)=>dt.getDay()===0||dt.getDay()===6||CLOSED_R.some(([a,b])=>dt>=a&&dt<=b);
+const HALF_T=new Set(HALF.map(([d,m,y])=>+new Date(y,m-1,d)));
+const isHalf=(dt)=>HALF_T.has(+new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()));
+const cap=(dt)=>isWE(dt)?0:(isHalf(dt)?.5:1);
 const monday=(dt)=>addD(dt,-((dt.getDay()+6)%7));
 const fmt=(dt)=>dt.toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit'});
 const fmtL=(dt)=>dt.toLocaleDateString('de-CH',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'});
@@ -252,7 +258,8 @@ function mkDate(d,m,y){
 }
 function firstWorkday(dt){while(isWE(dt))dt=addD(dt,1);return dt}
 function nthWorkday(dt,n){let x=firstWorkday(dt);for(let i=1;i<n;i++){x=addD(x,1);while(isWE(x))x=addD(x,1)}return x}
-function workdays(a,b){let n=0;for(let x=new Date(a);x<=b;x=addD(x,1))if(!isWE(x))n++;return n}
+function workdays(a,b){let n=0;for(let x=new Date(a);x<=b;x=addD(x,1))n+=cap(x);return n}
+function endDay(dt,tg){let x=firstWorkday(dt),rem=tg;for(;;){rem-=cap(x);if(rem<=1e-9)return x;x=addD(x,1);while(isWE(x))x=addD(x,1)}}
 
 /* ---------- CSV ---------- */
 function parseCSV(text){
@@ -319,7 +326,7 @@ function parseTask(team,r){
   if(!start&&ds.length){startHit=ds[0];start=ds[0].date}
   if(start){
     if(/\?/.test(fr)){t.a=true;t.vague=true;t.notes.push(`Tabelle: «${t.frist}»`)}
-    if(/Ende\s+Jahr/i.test(fr)){endFix=new Date(start.getFullYear(),ENDE_JAHR[1]-1,ENDE_JAHR[0]);t.a=true;t.notes.push('«Ende Jahr» → bis 17.12. angenommen (Betriebsferien ab 18.12.)')}
+    if(/Ende\s+Jahr/i.test(fr)){endFix=new Date(start.getFullYear(),ENDE_JAHR[1]-1,ENDE_JAHR[0]);t.a=true;t.notes.push('«Ende Jahr» → bis 18.12. Mittag angenommen (Betriebsferien ab 18.12. Mittag)')}
     for(const h of ds){if(h===startHit||+h.date===+start)continue;t.ms.push({date:h.date,label:lineLabel(fr,h,ds)})}
   }else{
     let m;
@@ -342,7 +349,7 @@ function parseTask(team,r){
     if(segs){t.segs=segs.map((p,k)=>({start:nthWorkday(start,k+1),tg:p}))}
     else t.segs=[{start,tg:t.tg}];
   }
-  const last=t.segs[t.segs.length-1];const end=nthWorkday(last.start,Math.max(1,Math.ceil(last.tg)));
+  const last=t.segs[t.segs.length-1];const end=endDay(last.start,last.tg);
   t.end=end;
   if(end<WIN_START()){t.reason=`vorbei (${t.frist})`;delete t.segs}
   return t;
@@ -419,10 +426,21 @@ const idx=(dt)=>Math.round((dt-START)/864e5);
 function span(start,tg,off=0){
   let dt=new Date(start),rem=tg,s=idx(dt)+off,e=s,last=dt,first=true;
   while(rem>1e-9){
-    if(!isWE(dt)){const avail=first?1-off:1;const use=Math.min(avail,rem);e=idx(dt)+(first?off:0)+use;rem-=use;last=dt;first=false}
+    const c=cap(dt);if(c>0){const avail=Math.max(0,first?c-off:c);if(avail>0){const use=Math.min(avail,rem);e=idx(dt)+(first?off:0)+use;rem-=use;last=dt}first=false}
     dt=addD(dt,1);
   }
   return [s,e,last];
+}
+function spanPieces(start,tg,off=0){
+  const out=[];let dt=new Date(start),rem=tg,first=true,cur=null;
+  while(rem>1e-9){
+    const c=cap(dt);
+    if(c>0){const avail=Math.max(0,first?c-off:c);if(avail>0){const use=Math.min(avail,rem);const a=idx(dt)+(first?off:0);
+      if(!cur){cur=[a,a+use];out.push(cur)}else cur[1]=a+use;rem-=use}first=false}
+    else if(cur&&isHol(dt))cur=null;
+    dt=addD(dt,1);
+  }
+  return out;
 }
 function el(t,c,h){const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
 const isHol=(dt)=>CLOSED_R.some(([a,b])=>dt>=a&&dt<=b);
@@ -430,7 +448,8 @@ function laneBg(lane,w,label){
   const bg=el('div','bg');
   for(let i=0;i<DAYS;i++){const dt=addD(START,i);if(isHol(dt))continue;if(isWE(dt)||dt.getDay()===1){const c=el('div','bgc'+(isWE(dt)?' we':' mon'));c.style.left=i*w+'px';c.style.width=w+'px';bg.appendChild(c)}}
   for(let i=0;i<DAYS;){if(!isHol(addD(START,i))){i++;continue}let j=i;while(j<DAYS&&isHol(addD(START,j)))j++;
-    const c=el('div','bgc hol',label&&(j-i)*w>90?'<span>Betriebsferien</span>':'');c.style.left=i*w+'px';c.style.width=(j-i)*w+'px';bg.appendChild(c);i=j}
+    const h=i>0&&isHalf(addD(START,i-1))?.5:0;
+    const c=el('div','bgc hol',label&&(j-i)*w>90?'<span>Betriebsferien</span>':'');c.style.left=(i-h)*w+'px';c.style.width=(j-i+h)*w+'px';bg.appendChild(c);i=j}
   lane.appendChild(bg);
   const tl=el('div','todayline');tl.style.left=(idx(TODAY)+.5)*w-1+'px';lane.appendChild(tl);
 }
@@ -460,7 +479,7 @@ function render(){
   r1.appendChild(weeks);head.appendChild(r1);
   const r2=el('div','row');r2.appendChild(el('div','lab',''));
   const days=el('div','days lane');days.style.width=W+'px';
-  for(let i=0;i<DAYS;i++){const dt=addD(START,i);const c=['dy'];if(isHol(dt))c.push('hol');else if(isWE(dt))c.push('we');if(dt.getDay()===1)c.push('mon');if(+dt===+TODAY)c.push('td');days.appendChild(el('div',c.join(' '),dt.getDate()))}
+  for(let i=0;i<DAYS;i++){const dt=addD(START,i);const c=['dy'];if(isHol(dt))c.push('hol');else if(isWE(dt))c.push('we');else if(isHalf(dt))c.push('half');if(dt.getDay()===1)c.push('mon');if(+dt===+TODAY)c.push('td');days.appendChild(el('div',c.join(' '),dt.getDate()))}
   r2.appendChild(days);head.appendChild(r2);grid.appendChild(head);
 
   for(const g of visGroups()){
@@ -479,12 +498,13 @@ function render(){
       const msTxt=t.ms.map(m=>`<br>◆ ${fmt(m.date)} ${esc(m.label)}`).join('');
       const tgTxt=String(+t.tg.toFixed(2));
       t.segs.forEach((sg,k)=>{
-        const [s,e,last]=span(sg.start,sg.tg);const bar=el('div','bar'+(t.a?' ass':''));
+        const [,,last]=span(sg.start,sg.tg);const pcs=spanPieces(sg.start,sg.tg);
+        pcs.forEach(([s,e],pi)=>{const bar=el('div','bar'+(t.a?' ass':''));
         bar.style.left=s*w+'px';bar.style.width=Math.max((e-s)*w,5)+'px';
-        const lbl=k===t.segs.length-1?`${tgTxt} Tg`:'';
+        const lbl=k===t.segs.length-1&&pi===pcs.length-1?`${tgTxt} Tg`:'';
         if((e-s)*w>44)bar.innerHTML=`<span class="in">${lbl}</span>`;else if(lbl)bar.innerHTML=`<span class="bl">${lbl}</span>`;
         hover(bar,`<b>${t.nr?'Nr. '+esc(t.nr)+' · ':''}${esc(t.ort)}</b><br>${esc(t.arb)}${t.bh?'<br>'+esc(t.bh):''}<br>${fmtL(t.segs[0].start)} – ${fmtL(t.end&&k===t.segs.length-1?last:last)} · ${tgTxt} Tg${msTxt}${t.notes.length?'<br><i>'+t.notes.map(esc).join('<br>')+'</i>':''}`);
-        ln.appendChild(bar)});
+        ln.appendChild(bar)})});
       for(const m of t.ms){const i=idx(m.date);if(i<0||i>=DAYS)continue;const d=el('div','ms');d.style.left=(i+.5)*w-5+'px';hover(d,`<b>${esc(m.label)}</b><br>${fmtL(m.date)}<br>${esc(t.ort)}`);ln.appendChild(d)}
       r.appendChild(ln);grid.appendChild(r);
     }
