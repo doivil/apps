@@ -73,6 +73,7 @@ button:focus-visible{outline:2px solid var(--bar);outline-offset:2px}
 .row.group{background:var(--group);height:34px}
 .row.group .lab{background:var(--grp-bg);color:var(--grp-fg);border-left:5px solid var(--grp-accent)}
 .row.group .lane{box-shadow:inset 0 2px 0 var(--grp-bg)}
+#grid>.row,.head .row{min-width:max-content}
 .row.group .t{font-family:var(--f-display);font-weight:600;font-size:17px;letter-spacing:.02em;text-transform:uppercase}
 .head{position:sticky;top:0;z-index:5;background:var(--surface)}
 .head .row{height:auto}
@@ -201,7 +202,8 @@ tr:last-child td{border-bottom:none}
       <li>Start = erstes Datum in «Personal/Fristen» (bei «start TT.MM.» dieses). Weitere Daten dort und in der Beschreibung erscheinen als Termine ◆.</li>
       <li>Dauer = «Tg» in Arbeitstagen (Mo–Fr). «2 x 0.5» = zwei Halbtage an aufeinanderfolgenden Arbeitstagen. Fehlt die Dauer, wird 1 Tg angenommen.</li>
       <li>«KW40» = Montag dieser Woche, «Oktober 2026» = 1. Arbeitstag des Monats, «… Ende Jahr» = bis 17.12. (letzter Arbeitstag vor den Betriebsferien) Diese Balken sind schraffiert, ebenso Daten mit «?».</li>
-      <li>Ist «Personal/Fristen» leer, steht der Eintrag schraffiert auf dem nächsten Arbeitstag (ab morgen).</li>
+      <li>Ist «Personal/Fristen» leer, steht der Eintrag schraffiert auf dem nächsten Arbeitstag (ab morgen). Dasselbe gilt für Einträge ohne festes Datum («KW…», «November», Datum mit «?»), deren Termin vor der Vorwoche liegt.</li>
+      <li>Der Zeitplan beginnt am Montag der Vorwoche. Einsätze, die vorher schon beendet waren, stehen unter «Ohne festen Termin» als «vorbei».</li>
       <li>Absenzen werden aus der Spalte «Absenzen» der jeweiligen Equipe gelesen.</li>
       <li>Betriebsferien 18.12.2026–04.01.2027 zählen wie Wochenenden nicht als Arbeitstage: Einsätze laufen danach weiter, Starts in dieser Zeit rücken auf den 05.01.</li>
     </ul>
@@ -291,6 +293,7 @@ function parseTg(F){
   return {tg:nums.reduce((a,b)=>a+parseFloat(b.replace(',','.')),0)};
 }
 
+const WIN_START=()=>monday(addD(TODAY,-7));
 function parseTask(team,r){
   const [A,,C,D,E,F,G,,I]=r.map(x=>x??'');
   const ortFull=String(E).trim();
@@ -309,15 +312,17 @@ function parseTask(team,r){
   if(sk){const h=findDates(sk[1])[0];if(h){start=h.date;startHit=ds.find(x=>+x.date===+start)}}
   if(!start&&ds.length){startHit=ds[0];start=ds[0].date}
   if(start){
-    if(/\?/.test(fr)){t.a=true;t.notes.push(`Tabelle: «${t.frist}»`)}
+    if(/\?/.test(fr)){t.a=true;t.vague=true;t.notes.push(`Tabelle: «${t.frist}»`)}
     if(/Ende\s+Jahr/i.test(fr)){endFix=new Date(start.getFullYear(),ENDE_JAHR[1]-1,ENDE_JAHR[0]);t.a=true;t.notes.push('«Ende Jahr» → bis 17.12. angenommen (Betriebsferien ab 18.12.)')}
     for(const h of ds){if(h===startHit||+h.date===+start)continue;t.ms.push({date:h.date,label:lineLabel(fr,h,ds)})}
   }else{
     let m;
-    if((m=fr.match(/KW\s?(\d{1,2})/i))){start=kwMonday(+m[1]);t.a=true;t.notes.push(`Tabelle: «${t.frist}» → Montag KW${m[1]}`)}
-    else if((m=fr.toLowerCase().match(new RegExp('^\\s*('+MONTHS.join('|')+')(?:\\s+(\\d{4}))?\\s*$')))){const mi=MONTHS.indexOf(m[1]);let yy=m[2]?+m[2]:TODAY.getFullYear();if(!m[2]&&mi<TODAY.getMonth()-5)yy++;start=firstWorkday(new Date(yy,mi,1));t.a=true;t.notes.push(`Tabelle: «${t.frist}» → 1. Arbeitstag`)}
+    if((m=fr.match(/KW\s?(\d{1,2})/i))){start=kwMonday(+m[1]);t.a=true;t.vague=true;t.notes.push(`Tabelle: «${t.frist}» → Montag KW${m[1]}`)}
+    else if((m=fr.toLowerCase().match(new RegExp('^\\s*('+MONTHS.join('|')+')(?:\\s+(\\d{4}))?\\s*$')))){const mi=MONTHS.indexOf(m[1]);let yy=m[2]?+m[2]:TODAY.getFullYear();if(!m[2]&&mi<TODAY.getMonth()-5)yy++;start=firstWorkday(new Date(yy,mi,1));t.a=true;t.vague=true;t.notes.push(`Tabelle: «${t.frist}» → 1. Arbeitstag`)}
   }
   if(!start&&!squash(fr)){start=addD(TODAY,1);t.a=true;t.notes.push('Kein Startdatum → nächster Arbeitstag angenommen')}
+  // Nicht fest terminierte Einsätze, deren Start vor dem Anzeigebereich liegt: ab nächstem Arbeitstag einplanen
+  if(start&&t.vague&&start<WIN_START()){start=addD(TODAY,1);t.notes.push(`Termin «${t.frist}» ist vorbei, noch nicht erledigt → ab nächstem Arbeitstag angenommen`)}
   {const gd=findDates(String(G));for(const h of gd){if(start&&+h.date===+start)continue;t.ms.push({date:h.date,label:lineLabel(String(G),h,gd)})}}
 
   for(const o of OVERRIDES){
@@ -333,7 +338,7 @@ function parseTask(team,r){
   }
   const last=t.segs[t.segs.length-1];const end=nthWorkday(last.start,Math.max(1,Math.ceil(last.tg)));
   t.end=end;
-  if(end<addD(TODAY,-45)){t.reason=`vorbei (${t.frist})`;delete t.segs}
+  if(end<WIN_START()){t.reason=`vorbei (${t.frist})`;delete t.segs}
   return t;
 }
 
@@ -429,9 +434,9 @@ function hover(node,html){
   node.addEventListener('blur',()=>tip.hidden=true);
 }
 function setRange(){
-  let lo=addD(TODAY,-42),hi=addD(TODAY,56);
-  for(const g of visGroups())for(const t of g.tasks){if(t.segs[0].start<lo&&t.end>=addD(TODAY,-14))lo=t.segs[0].start;if(t.end>hi)hi=t.end}
-  if(lo<addD(TODAY,-84))lo=addD(TODAY,-84);
+  // Anzeige ab Montag der Vorwoche
+  const lo=WIN_START();let hi=addD(TODAY,56);
+  for(const g of visGroups())for(const t of g.tasks){if(t.end>hi)hi=t.end}
   if(hi>addD(TODAY,182))hi=addD(TODAY,182);
   START=monday(lo);END=addD(monday(hi),6);DAYS=Math.round((END-START)/864e5)+1;
 }
