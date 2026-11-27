@@ -135,7 +135,7 @@ let L=[],line=null,cur=0,list=[];
 
 function pick(){const hs=location.hash;if(hs==='#team'||hs==='#ablauf'||hs==='#pikett'||!hs){line=hs?hs.slice(1):'ablauf';render();return}const h=hs.replace('#linie-','');line=L.find(l=>l.nr===h)||L[0];render()}
 function render(){
-  $('tabs').innerHTML=`<button class="tab ab" role="tab" aria-selected="${line==='ablauf'}" data-nr="ablauf"><span class="nr" aria-hidden="true">!</span><span>Ablauf<small>Meldungen im Einsatz</small></span></button>`+L.map(l=>`<button class="tab" role="tab" aria-selected="${l===line}" data-nr="${esc(l.nr)}"><span class="nr" style="background:${esc(l.farbe||'#555')}">${esc(l.nr)}</span><span>Linie ${esc(l.nr)}<small>${esc(l.titel||'')}</small></span></button>`).join('')+`<button class="tab tm" role="tab" aria-selected="${line==='team'}" data-nr="team"><span class="nr" aria-hidden="true">☎</span><span>Team<small>Pikett &amp; Kontakte</small></span></button>`+`<button class="tab pk" role="tab" aria-selected="${line==='pikett'}" data-nr="pikett"><span class="nr" aria-hidden="true">P</span><span>Pikett<small>Wer hat Pikett</small></span></button>`;
+  $('tabs').innerHTML=`<button class="tab ab" role="tab" aria-selected="${line==='ablauf'}" data-nr="ablauf"><span class="nr" aria-hidden="true">!</span><span>Ablauf<small>Meldungen im Einsatz</small></span></button>`+L.map(l=>`<button class="tab" role="tab" aria-selected="${l===line}" data-nr="${esc(l.nr)}"><span class="nr" style="background:${esc(l.farbe||'#555')}">${esc(l.nr)}</span><span>Linie ${esc(l.nr)}<small>${esc(l.titel||'')}</small></span></button>`).join('')+`<button class="tab tm" role="tab" aria-selected="${line==='team'}" data-nr="team"><span class="nr" aria-hidden="true">☎</span><span>Team<small>Pikett &amp; Kontakte</small></span></button>`+`<button class="tab pk" role="tab" aria-selected="${line==='pikett'}" data-nr="pikett"><span class="nr" aria-hidden="true">P</span><span>Pikettliste<small>Wer hat Pikett</small></span></button>`;
   if(line==='team'){renderTeam();return}
   if(line==='ablauf'){renderAblauf();return}
   if(line==='pikett'){renderPikett();return}
@@ -210,7 +210,7 @@ const SHORT=g=>g.replace(/^Gruppe \S+ · /,'');
 function renderPikett(){
   if(!EXEC||EXEC.startsWith('__')){$('m').innerHTML='<p class="msg">Die Pikettliste ist noch nicht verbunden.</p>';return}
   if(!people){if(!store.get('wd-pin'))return pinForm();return loadTeam()}
-  if(!pikett){$('m').innerHTML='<h2>Pikett</h2><p class="msg">Die Pikettliste ist noch nicht freigeschaltet.</p>';return}
+  if(!pikett){$('m').innerHTML='<h2>Pikettliste</h2><p class="msg">Die Pikettliste ist noch nicht freigeschaltet.</p>';return}
   if(pMode==='day')return renderPikettDay();
   if(!pStart)pStart=pikettToday();
   const N=14,tk=iso(pikettToday());let html='';
@@ -221,7 +221,7 @@ function renderPikett(){
       +(rows.length?gs.map(g=>`<div class="pgr"><span class="pgl">${esc(SHORT(g))}</span><span>${rows.filter(r=>r[1]===g).map(r=>esc(r[2])+(r[3]!=='Pikett'?` <em>(${esc(r[3])})</em>`:'')).join(', ')}</span></div>`).join(''):'<div class="pgr"><span>Kein Pikett eingetragen</span></div>')+'</li>';
   }
   const e=new Date(pStart);e.setDate(e.getDate()+N-1);
-  $('m').innerHTML=`<h2>Pikett</h2><div class="pnav"><button id="pp" aria-label="Frühere Tage">‹</button><div><b>${esc(pStart.toLocaleDateString('de-CH',{day:'numeric',month:'short'}))} – ${esc(e.toLocaleDateString('de-CH',{day:'numeric',month:'short',year:'numeric'}))}</b><small>Tag antippen für Details</small></div><button id="pn" aria-label="Spätere Tage">›</button></div>${iso(pStart)===tk?'':'<button class="today" id="pt">Zu heute</button>'}<ul class="plist">${html}</ul>`;
+  $('m').innerHTML=`<h2>Pikettliste</h2><div class="pnav"><button id="pp" aria-label="Frühere Tage">‹</button><div><b>${esc(pStart.toLocaleDateString('de-CH',{day:'numeric',month:'short'}))} – ${esc(e.toLocaleDateString('de-CH',{day:'numeric',month:'short',year:'numeric'}))}</b><small>Tag antippen für Details</small></div><button id="pn" aria-label="Spätere Tage">›</button></div>${iso(pStart)===tk?'':'<button class="today" id="pt">Zu heute</button>'}<ul class="plist">${html}</ul>`;
   $('pp').onclick=()=>{pStart.setDate(pStart.getDate()-N);renderPikett()};
   $('pn').onclick=()=>{pStart.setDate(pStart.getDate()+N);renderPikett()};
   if($('pt'))$('pt').onclick=()=>{pStart=null;renderPikett()};
