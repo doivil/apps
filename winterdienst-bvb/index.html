@@ -315,9 +315,11 @@ function findP(k){return (people||[]).find(p=>p.tel&&p.name.toLowerCase().includ
 
 const ABL=[
  {t:'Verantwortlicher meldet bis Mitternacht',d:'Der Verantwortliche meldet situationsbedingt bis Mitternacht, ob ein Einsatz notwendig ist.'},
- {t:'Zuerst: Rampe Anlieferung',d:'Wenn ja: Als Erstes muss die Rampe Anlieferung bis spätestens 05.00 Uhr eisfrei sein.',key:1},
- {t:'Danach: Trottoir, Parkplatz Coop und Ärztehaus',d:'Danach das Trottoir, den Parkplatz Coop und das Ärztehaus salzen und räumen.'},
- {t:'Dann alles andere im Areal',d:'Zum Schluss alle übrigen Flächen im Areal gemäss Plan (Areal Coop).'}
+ {t:'Rampe Anlieferung',d:'Als Erstes: Rampe Anlieferung bis spätestens 05.00 Uhr eisfrei.',key:1},
+ {t:'Trottoir',d:'Danach das Trottoir salzen und räumen.'},
+ {t:'Parkplatz Coop',d:'Danach den Parkplatz Coop salzen und räumen.'},
+ {t:'Ärztehaus',d:'Danach das Ärztehaus salzen und räumen.'},
+ {t:'Alles andere im Areal',d:'Zum Schluss alle übrigen Flächen im Areal gemäss Plan (Areal Coop).'}
 ];
 function renderAblaufLetten(){
   $('m').innerHTML='<h2>Ablauf Einsatz Areal Letten</h2><ol class="steps let">'+ABL.map((s,i)=>`<li${s.key?' class="key"':''}><span class="n">${i+1}</span><div><b>${esc(s.t)}</b><p>${esc(s.d)}</p></div></li>`).join('')+'</ol>';
