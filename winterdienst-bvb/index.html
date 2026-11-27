@@ -67,6 +67,13 @@ li{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) 92px;
 .team li.hl small{color:#3d3a20}
 .tab.tm .nr{background:var(--steel)}
 .tab.ab .nr{background:var(--accent)}
+.tab.pk .nr{background:#6b4fa0}
+.pnav{display:grid;grid-template-columns:48px minmax(0,1fr) 48px;gap:8px;align-items:center;margin:4px 0 6px}
+.pnav button{min-height:44px;border:1.5px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--fg);font-size:22px;cursor:pointer}
+.pnav b{display:block;text-align:center;font:700 22px/1.1 var(--f-display)}
+.pnav small{display:block;text-align:center;color:var(--muted);font-size:13px}
+.today{display:block;margin:0 auto 4px;border:0;background:none;color:var(--link);font:600 14px var(--f-body);text-decoration:underline;min-height:36px;cursor:pointer}
+.team .st{display:block;font-size:13px;font-weight:600;color:#b3261e}
 .steps{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:s}
 .steps li{display:grid;grid-template-columns:40px minmax(0,1fr);align-items:start;gap:12px;padding:12px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r)}
 .steps li.key{border-color:#e0b800;box-shadow:inset 4px 0 0 #ffd60a}
@@ -117,18 +124,19 @@ const mapsUrl=s=>G+encodeURIComponent(s.maps||(s.name+' '+(s.ort||'')));
 const img=f=>'img/'+encodeURIComponent(f);
 let L=[],line=null,cur=0,list=[];
 
-function pick(){const hs=location.hash;if(hs==='#team'||hs==='#ablauf'||!hs){line=hs==='#team'?'team':'ablauf';render();return}const h=hs.replace('#linie-','');line=L.find(l=>l.nr===h)||L[0];render()}
+function pick(){const hs=location.hash;if(hs==='#team'||hs==='#ablauf'||hs==='#pikett'||!hs){line=hs?hs.slice(1):'ablauf';render();return}const h=hs.replace('#linie-','');line=L.find(l=>l.nr===h)||L[0];render()}
 function render(){
-  $('tabs').innerHTML=`<button class="tab ab" role="tab" aria-selected="${line==='ablauf'}" data-nr="ablauf"><span class="nr" aria-hidden="true">!</span><span>Ablauf<small>Meldungen im Einsatz</small></span></button>`+L.map(l=>`<button class="tab" role="tab" aria-selected="${l===line}" data-nr="${esc(l.nr)}"><span class="nr" style="background:${esc(l.farbe||'#555')}">${esc(l.nr)}</span><span>Linie ${esc(l.nr)}<small>${esc(l.titel||'')}</small></span></button>`).join('')+`<button class="tab tm" role="tab" aria-selected="${line==='team'}" data-nr="team"><span class="nr" aria-hidden="true">☎</span><span>Team<small>Pikett &amp; Kontakte</small></span></button>`;
+  $('tabs').innerHTML=`<button class="tab ab" role="tab" aria-selected="${line==='ablauf'}" data-nr="ablauf"><span class="nr" aria-hidden="true">!</span><span>Ablauf<small>Meldungen im Einsatz</small></span></button>`+L.map(l=>`<button class="tab" role="tab" aria-selected="${l===line}" data-nr="${esc(l.nr)}"><span class="nr" style="background:${esc(l.farbe||'#555')}">${esc(l.nr)}</span><span>Linie ${esc(l.nr)}<small>${esc(l.titel||'')}</small></span></button>`).join('')+`<button class="tab tm" role="tab" aria-selected="${line==='team'}" data-nr="team"><span class="nr" aria-hidden="true">☎</span><span>Team<small>Pikett &amp; Kontakte</small></span></button>`+`<button class="tab pk" role="tab" aria-selected="${line==='pikett'}" data-nr="pikett"><span class="nr" aria-hidden="true">P</span><span>Pikett<small>Wer hat Pikett</small></span></button>`;
   if(line==='team'){renderTeam();return}
   if(line==='ablauf'){renderAblauf();return}
+  if(line==='pikett'){renderPikett();return}
   list=line.haltestellen||[];
   const orte=[...new Set(list.map(s=>s.ort||''))];
   $('m').style.setProperty('--lc',line.farbe||'#555');
   $('m').innerHTML=(list.length?orte.map(o=>`<h2>${esc(o)}</h2><ol>`+list.map((s,k)=>(s.ort||'')!==o?'':`<li><div class="dot"></div><div><div class="name">${esc(s.name)}</div><a class="maps" href="${esc(mapsUrl(s))}" target="_blank" rel="noopener">Google Maps ↗</a></div>${(s.bilder||[]).length?`<button class="thumb" data-k="${k}" aria-label="Bild ${esc(s.name)} anzeigen"><img src="${esc(img(s.bilder[0]))}" alt="" loading="lazy">${s.bilder.length>1?`<span>${s.bilder.length} Bilder</span>`:''}</button>`:'<div class="nobild">Noch kein Bild</div>'}</li>`).join('')+'</ol>').join(''):'<p class="msg">Für diese Linie sind noch keine Haltestellen erfasst.</p>')
 ;
 }
-$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){history.replaceState(null,'',b.dataset.nr==='team'||b.dataset.nr==='ablauf'?'#'+b.dataset.nr:'#linie-'+b.dataset.nr);pick();window.scrollTo(0,0)}});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){history.replaceState(null,'',['team','ablauf','pikett'].includes(b.dataset.nr)?'#'+b.dataset.nr:'#linie-'+b.dataset.nr);pick();window.scrollTo(0,0)}});
 window.addEventListener('hashchange',pick);
 
 const v=$('v'),vs=$('vs');
@@ -153,7 +161,7 @@ document.addEventListener('keydown',e=>{if(!v.classList.contains('on'))return;if
 // ---- Team / Telefonliste (Daten aus Google-Tabelle über Apps-Script, mit PIN) ----
 const EXEC="https://script.google.com/macros/s/AKfycbzcEd33VW0MlSlJQJpKWIXNs1m_97LjkxNCa5t02gvlMs4re8FxhboznemKHLHA0Jvn/exec";
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
-let people=null;
+let people=null,pikett=null;
 function telHref(t){return 'tel:'+String(t).replace(/[^\d+]/g,'')}
 function pinForm(msg){
   $('m').innerHTML=`<h2>Team &amp; Telefonnummern</h2><p class="sub">Die Nummern sind geschützt. Bitte die Team-PIN eingeben (einmalig auf diesem Handy).</p><form class="pinf" id="pf"><input id="pin" type="password" inputmode="numeric" autocomplete="off" aria-label="PIN">${msg?`<div class="err">${esc(msg)}</div>`:''}<button type="submit">Anzeigen</button></form>`;
@@ -171,9 +179,9 @@ async function loadTeam(quiet){
   try{
     const r=await fetch(EXEC+'?pin='+encodeURIComponent(store.get('wd-pin')||'')+'&t='+Date.now(),{credentials:'omit'});
     const d=await r.json();
-    if(!d.ok){if(d.error==='pin'){store.del('wd-pin');if(line==='team')pinForm('PIN falsch.');return}throw new Error(d.error)}
-    people=d.people||[];if(line==='team')showTeam();if(line==='ablauf')renderAblauf();
-  }catch(e){if(line!=='team')return;$('m').innerHTML='<p class="msg">Telefonliste konnte nicht geladen werden. Bitte Verbindung prüfen.</p><button class="lnk" id="rt">Nochmals versuchen</button>';$('rt').onclick=()=>loadTeam()}
+    if(!d.ok){if(d.error==='pin'){store.del('wd-pin');if(line==='team'||line==='pikett')pinForm('PIN falsch.');return}throw new Error(d.error)}
+    people=d.people||[];pikett=Array.isArray(d.pikett)?d.pikett:null;if(line==='team')showTeam();if(line==='ablauf')renderAblauf();if(line==='pikett')renderPikett();
+  }catch(e){if(line!=='team'&&line!=='pikett')return;$('m').innerHTML='<p class="msg">Telefonliste konnte nicht geladen werden. Bitte Verbindung prüfen.</p><button class="lnk" id="rt">Nochmals versuchen</button>';$('rt').onclick=()=>loadTeam()}
 }
 function showTeam(){
   const hl=p=>/leitstelle/i.test(p.name);
@@ -181,6 +189,27 @@ function showTeam(){
   $('m').innerHTML='<h2>Team &amp; Telefonnummern</h2>'+(list.length?'<ul class="team">'+list.map(p=>`<li${/leitstelle/i.test(p.name)?' class="hl"':''}><div><b>${esc(p.name)}${p.gruppe?` <span class="grp">(${esc(p.gruppe)})</span>`:''}</b>${p.funktion?`<small>${esc(p.funktion)}</small>`:''}</div><a class="call" href="${esc(telHref(p.tel))}">Anrufen<span>${esc(p.tel)}</span></a></li>`).join('')+'</ul>':'<p class="msg">Noch keine Nummern erfasst.</p>')
    +'<p class="note"><button class="lnk" id="lo">PIN auf diesem Handy löschen</button></p>';
   $('lo').onclick=()=>{store.del('wd-pin');people=null;pinForm()};
+}
+
+// ---- Pikettliste (Daten nur über das Apps-Script, mit PIN) ----
+let pDay=null;
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+function pikettToday(){const n=new Date();if(n.getHours()<6)n.setDate(n.getDate()-1);return n}
+function telFor(name){const t=name.toLowerCase().replace(/[()]/g,'').split(/\s+/).filter(x=>x.length>2);return (people||[]).find(p=>p.tel&&t.every(w=>p.name.toLowerCase().includes(w)))}
+function renderPikett(){
+  if(!EXEC||EXEC.startsWith('__')){$('m').innerHTML='<p class="msg">Die Pikettliste ist noch nicht verbunden.</p>';return}
+  if(!people){if(!store.get('wd-pin'))return pinForm();return loadTeam()}
+  if(!pikett){$('m').innerHTML='<h2>Pikett</h2><p class="msg">Die Pikettliste ist noch nicht freigeschaltet.</p>';return}
+  if(!pDay)pDay=pikettToday();
+  const key=iso(pDay),rows=pikett.filter(r=>r[0]===key);
+  const wd=pDay.toLocaleDateString('de-CH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const isToday=key===iso(pikettToday());
+  const groups=[...new Set(rows.map(r=>r[1]))];
+  $('m').innerHTML=`<h2>Pikett</h2><div class="pnav"><button id="pp" aria-label="Vorheriger Tag">‹</button><div><b>${esc(wd)}</b>${isToday?'<small>heute</small>':''}</div><button id="pn" aria-label="Nächster Tag">›</button></div>${isToday?'':'<button class="today" id="pt">Zurück zu heute</button>'}`
+   +(rows.length?groups.map(g=>`<h2>${esc(g)}</h2><ul class="team">`+rows.filter(r=>r[1]===g).map(r=>{const p=telFor(r[2]);return `<li><div><b>${esc(r[2])}</b>${r[3]!=='Pikett'?`<span class="st">${esc(r[3])}</span>`:''}</div>${p&&r[3]==='Pikett'?`<a class="call" href="${esc(telHref(p.tel))}">Anrufen<span>${esc(p.tel)}</span></a>`:''}</li>`}).join('')+'</ul>').join(''):'<p class="msg">Für diesen Tag ist kein Pikett eingetragen.</p>');
+  $('pp').onclick=()=>{pDay.setDate(pDay.getDate()-1);renderPikett()};
+  $('pn').onclick=()=>{pDay.setDate(pDay.getDate()+1);renderPikett()};
+  if($('pt'))$('pt').onclick=()=>{pDay=null;renderPikett()};
 }
 
 // ---- Ablauf (Meldungen vor und während dem Einsatz). Nummern kommen aus der Telefonliste. ----

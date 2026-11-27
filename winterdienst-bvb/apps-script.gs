@@ -36,7 +36,7 @@ function doGet(e) {
       if (!name || (i === 0 && /^name$/i.test(name))) return;
       people.push({ name: name, tel: String(r[1]).trim(), funktion: String(r[2]).trim(), typ: String(r[3]).trim(), gruppe: String(r[4]).trim() });
     });
-    return json({ ok: true, people: people });
+    return json({ ok: true, people: people, pikett: PIKETT });
   } catch (err) {
     return json({ ok: false, error: String(err && err.message || err) });
   }
@@ -45,3 +45,6 @@ function doGet(e) {
 function json(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
+
+// Pikettliste: [Datum, Gruppe, Name, Status]. Die Daten stehen nur im Apps-Script-Projekt, nicht auf GitHub.
+const PIKETT = [];
