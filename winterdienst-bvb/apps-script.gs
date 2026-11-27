@@ -28,6 +28,7 @@ function doGet(e) {
     const given = String((e && e.parameter && e.parameter.pin) || '').trim();
     if (!pin) return json({ ok: false, error: 'nopin' });
     if (given !== pin) { Utilities.sleep(800); return json({ ok: false, error: 'pin' }); }
+    if (e.parameter.auftrag) return auftragPdf(e.parameter.auftrag);
 
     const sh = SpreadsheetApp.openById(SHEET_ID).getSheets()[0];
     const values = sh.getRange(1, 1, Math.max(sh.getLastRow(), 1), 5).getDisplayValues();
@@ -158,4 +159,20 @@ function parsePikettXlsx(files) {
     }
   });
   return out;
+}
+
+// Arbeitsaufträge BVB Schneebekämpfung Extern A–E als PDF (neueste Datei «…_Extern_X.pdf» im Ordner).
+const AUFTRAG_FOLDER_ID = '1sCgOLJnx4plviZJj6QLpjg8b3JRQMhqj';
+function auftragPdf(buchstabe) {
+  const b = String(buchstabe || '').toUpperCase();
+  if (!/^[A-E]$/.test(b)) return json({ ok: false, error: 'auftrag' });
+  const re = new RegExp('Extern_' + b + '\\.pdf$', 'i');
+  let best = null;
+  const it = DriveApp.getFolderById(AUFTRAG_FOLDER_ID).getFiles();
+  while (it.hasNext()) {
+    const f = it.next();
+    if (re.test(f.getName()) && (!best || f.getLastUpdated() > best.getLastUpdated())) best = f;
+  }
+  if (!best) return json({ ok: false, error: 'nicht gefunden' });
+  return json({ ok: true, name: best.getName(), stand: best.getLastUpdated().toISOString(), data: Utilities.base64Encode(best.getBlob().getBytes()) });
 }
