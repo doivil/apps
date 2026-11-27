@@ -72,6 +72,8 @@ li{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) 92px;
 .tab.tm .nr{background:var(--steel)}
 .tab.ab .nr{background:var(--accent)}
 .tab.al .nr{background:#2e7d4f}
+.tab.ae .nr{background:#1d4f91}
+.steps.ext .n{background:#1d4f91}
 .tab.ex .nr{background:#1d4f91;font-size:13px;white-space:nowrap}
 .auf.ext{border-left:5px solid #1d4f91}
 .steps.let .n{background:#2e7d4f}
@@ -168,27 +170,28 @@ const mapsUrl=s=>G+encodeURIComponent(s.maps||(s.name+' '+(s.ort||'')));
 const img=f=>'img/'+encodeURIComponent(f);
 let L=[],line=null,cur=0,list=[];
 
-function pick(){const hs=location.hash;if(hs==='#team'||hs==='#ablauf'||hs==='#ablauf-letten'||hs==='#extern'||hs==='#pikett'||!hs){line=hs?hs.slice(1):'ablauf';render();return}const h=hs.replace('#linie-','');line=L.find(l=>l.nr===h)||L[0];render()}
+function pick(){const hs=location.hash;if(hs==='#team'||hs==='#ablauf'||hs==='#ablauf-letten'||hs==='#extern'||hs==='#ablauf-extern'||hs==='#pikett'||!hs){line=hs?hs.slice(1):'ablauf';render();return}const h=hs.replace('#linie-','');line=L.find(l=>l.nr===h)||L[0];render()}
 function render(){
   const T=(nr,cls,sel,icon,ttl,sub,style)=>`<button class="tab ${cls}" role="tab" aria-selected="${sel}" data-nr="${esc(nr)}"><span class="nr" ${style||''} aria-hidden="true">${icon}</span><span>${ttl}<small>${sub}</small></span></button>`;
   const LT=l=>T(l.nr,'',l===line,esc(l.nr),esc(l.name||l.titel||''),esc(l.name?(l.titel||''):('Linie '+l.nr)),`style="background:${esc(l.farbe||'#555')}"`);
   const grp=(t,c,inner)=>inner?`<section class="auf ${c}"><h3>${t}</h3><div class="tabs" role="tablist">${inner}</div></section>`:'';
   $('tabs').innerHTML=grp('Auftrag BVB · Tramhaltestellen','bvb',T('ablauf','ab',line==='ablauf','!','Ablauf','Meldungen im Einsatz')+L.filter(l=>(l.auftrag||'BVB')==='BVB').map(LT).join(''))
    +grp('Auftrag Areal Letten Allschwil','let',T('ablauf-letten','al',line==='ablauf-letten','!','Ablauf Letten','Reihenfolge im Einsatz')+L.filter(l=>l.auftrag==='Letten').map(LT).join(''))
-   +grp('Auftrag BVB · Schneebekämpfung Extern (&gt; 10 cm)','ext',T('extern','ex',line==='extern','A–E','Arbeitsaufträge','Hans Reich · Bertschmann · Weber'))
+   +grp('Auftrag BVB · Schneebekämpfung Extern (&gt; 10 cm)','ext',T('ablauf-extern','ae',line==='ablauf-extern','!','Ablauf','Meldungen im Einsatz')+T('extern','ex',line==='extern','A–E','Arbeitsaufträge','Hans Reich · Bertschmann · Weber'))
    +grp('Für alle Aufträge','all',T('team','tm',line==='team','☎','Team','Pikett &amp; Kontakte')+T('pikett','pk',line==='pikett','P','Pikettliste','Wer hat Pikett'));
   if(line==='team'){renderTeam();return}
   if(line==='ablauf'){renderAblauf();return}
   if(line==='ablauf-letten'){renderAblaufLetten();return}
   if(line==='pikett'){renderPikett();return}
   if(line==='extern'){renderExtern();return}
+  if(line==='ablauf-extern'){renderAblaufExtern();return}
   list=line.haltestellen||[];
   const orte=[...new Set(list.map(s=>s.ort||''))];
   $('m').style.setProperty('--lc',line.farbe||'#555');
   $('m').innerHTML=(list.length?orte.map(o=>`<h2>${esc(o)}</h2><ol>`+list.map((s,k)=>(s.ort||'')!==o?'':`<li><div class="dot"></div><div><div class="name">${esc(s.name)}</div>${s.info?`<div class="sub">${esc(s.info)}</div>`:''}<a class="maps" href="${esc(mapsUrl(s))}" target="_blank" rel="noopener">Google Maps ↗</a></div>${(s.bilder||[]).length?`<button class="thumb" data-k="${k}" aria-label="Bild ${esc(s.name)} anzeigen"><img src="${esc(img(s.bilder[0]))}" alt="" loading="lazy">${s.bilder.length>1?`<span>${s.bilder.length} Bilder</span>`:''}</button>`:'<div class="nobild">Noch kein Bild</div>'}</li>`).join('')+'</ol>').join(''):'<p class="msg">Für diese Linie sind noch keine Haltestellen erfasst.</p>')
 ;
 }
-$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){history.replaceState(null,'',['team','ablauf','ablauf-letten','extern','pikett'].includes(b.dataset.nr)?'#'+b.dataset.nr:'#linie-'+b.dataset.nr);pick();window.scrollTo(0,0)}});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){history.replaceState(null,'',['team','ablauf','ablauf-letten','ablauf-extern','extern','pikett'].includes(b.dataset.nr)?'#'+b.dataset.nr:'#linie-'+b.dataset.nr);pick();window.scrollTo(0,0)}});
 window.addEventListener('hashchange',pick);
 
 const v=$('v'),vs=$('vs');
@@ -372,6 +375,17 @@ const AB=[
  {t:'Stundenrapport',d:'Die Stundenrapportierung wie gewohnt machen.'}
 ];
 function findP(k){return (people||[]).find(p=>p.tel&&p.name.toLowerCase().includes(k))}
+
+const ABE=[
+ {t:'BVB meldet an Pikettverantwortlichen',d:'Die BVB meldet den Einsatz an den Pikettverantwortlichen.'},
+ {t:'Arbeiten nach Prioritäten',d:'Gemäss Arbeitsauftrag arbeiten: zuerst Prio 1, dann Prio 2, dann Prio 3.',key:1},
+ {t:'Beginn jeder Strecke im Chat melden',d:'Bei Beginn jeder einzelnen Strecke im Gruppenchat melden.'},
+ {t:'Ende jeder Strecke im Chat melden',d:'Bei Ende jeder einzelnen Strecke im Gruppenchat melden.'},
+ {t:'Stundenrapport',d:'Die Stundenrapportierung wie gewohnt machen.'}
+];
+function renderAblaufExtern(){
+  $('m').innerHTML='<h2>Ablauf Schneebekämpfung Extern</h2><ol class="steps ext">'+ABE.map((s,i)=>`<li${s.key?' class="key"':''}><span class="n">${i+1}</span><div><b>${esc(s.t)}</b><p>${esc(s.d)}</p></div></li>`).join('')+'</ol>';
+}
 
 const ABL=[
  {t:'Verantwortlicher meldet bis Mitternacht',d:'Der Verantwortliche meldet situationsbedingt bis Mitternacht, ob ein Einsatz notwendig ist.'},
