@@ -164,13 +164,13 @@
   },
   {
    "nr": "A",
-   "name": "Areal Coop",
-   "titel": "Allschwil Letten",
+   "name": "Areal Letten",
+   "titel": "Coop · Würth · Ärztehaus",
    "farbe": "#2e7d4f",
    "haltestellen": [
     {
-     "name": "Areal Coop Allschwil Letten Center",
-     "ort": "Allschwil",
+     "name": "Areal Letten Allschwil",
+     "ort": "Coop · Würth · Ärztehaus",
      "maps": "Coop Supermarkt Allschwil Letten Center",
      "bilder": [
       "areal-coop.jpg"
