@@ -61,6 +61,8 @@ li{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) 92px;
 .pinf button,.lnk{font:600 16px var(--f-body);min-height:46px;border:0;border-radius:var(--r);background:var(--steel);color:#fff;cursor:pointer}
 .lnk{background:none;color:var(--link);min-height:40px;padding:0;text-decoration:underline}
 .err{color:#b3261e;font-size:14px}
+.team b .grp{font-weight:500;color:var(--muted)}
+.team li.hl .grp{color:#3d3a20}
 .team li.hl{background:#ffd60a;border-color:#e0b800;color:#1d2226}
 .team li.hl small{color:#3d3a20}
 .tab.tm .nr{background:var(--steel)}
@@ -176,7 +178,7 @@ async function loadTeam(quiet){
 function showTeam(){
   const hl=p=>/leitstelle/i.test(p.name);
   const list=people.filter(p=>p.tel).sort((a,b)=>hl(b)-hl(a));
-  $('m').innerHTML='<h2>Team &amp; Telefonnummern</h2>'+(list.length?'<ul class="team">'+list.map(p=>`<li${/leitstelle/i.test(p.name)?' class="hl"':''}><div><b>${esc(p.name)}</b>${p.funktion?`<small>${esc(p.funktion)}</small>`:''}</div><a class="call" href="${esc(telHref(p.tel))}">Anrufen<span>${esc(p.tel)}</span></a></li>`).join('')+'</ul>':'<p class="msg">Noch keine Nummern erfasst.</p>')
+  $('m').innerHTML='<h2>Team &amp; Telefonnummern</h2>'+(list.length?'<ul class="team">'+list.map(p=>`<li${/leitstelle/i.test(p.name)?' class="hl"':''}><div><b>${esc(p.name)}${p.gruppe?` <span class="grp">(${esc(p.gruppe)})</span>`:''}</b>${p.funktion?`<small>${esc(p.funktion)}</small>`:''}</div><a class="call" href="${esc(telHref(p.tel))}">Anrufen<span>${esc(p.tel)}</span></a></li>`).join('')+'</ul>':'<p class="msg">Noch keine Nummern erfasst.</p>')
    +'<p class="note">Die Liste kommt aus der Google-Tabelle «Pikett Winterdienst – Telefonliste». Angezeigt werden alle mit Nummer. Änderungen dort erscheinen hier beim nächsten Öffnen. <button class="lnk" id="lo">PIN auf diesem Handy löschen</button></p>';
   $('lo').onclick=()=>{store.del('wd-pin');people=null;pinForm()};
 }
