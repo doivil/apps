@@ -27,17 +27,18 @@
   --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
   --grp-bg:#2b3236; --grp-fg:#ffffff; --grp-accent:#e2231a;
+  --plan:#2e8b57; --plan-soft:#cfe9d9; --plan-fg:#ffffff;
   --hol-a:rgba(52,102,160,.07); --hol-b:rgba(52,102,160,.16); --hol-edge:rgba(52,102,160,.35); --hol-fg:#33597f;
   --label-w:250px; --day-w:16px; --row-h:30px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#16191b; --surface:#1e2225; --fg:#e8eaea; --muted:#9aa2a6; --line:#2d3337; --line-strong:#454c51;
   --weekend:#1a1d1f; --group:#262b2e; --bar:#f07a35; --bar-fg:#1a0d04; --bar-soft:#5a3420;
-  --absence:#7d878c; --absence-soft:#3a4246; --today:#f2c230; --milestone:#e8eaea; --ok:#5cc48a; --warn:#e9a25a; --grp-bg:#3a444a; --grp-fg:#ffffff; --hol-a:rgba(130,170,220,.06); --hol-b:rgba(130,170,220,.15); --hol-edge:rgba(130,170,220,.35); --hol-fg:#a9c4e4; color-scheme:dark}}
+  --absence:#7d878c; --absence-soft:#3a4246; --today:#f2c230; --milestone:#e8eaea; --ok:#5cc48a; --warn:#e9a25a; --grp-bg:#3a444a; --grp-fg:#ffffff; --hol-a:rgba(130,170,220,.06); --hol-b:rgba(130,170,220,.15); --hol-edge:rgba(130,170,220,.35); --hol-fg:#a9c4e4; --plan:#4cbf85; --plan-soft:#1f4733; --plan-fg:#0c2117; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#16191b; --surface:#1e2225; --fg:#e8eaea; --muted:#9aa2a6; --line:#2d3337; --line-strong:#454c51;
   --weekend:#1a1d1f; --group:#262b2e; --bar:#f07a35; --bar-fg:#1a0d04; --bar-soft:#5a3420;
-  --absence:#7d878c; --absence-soft:#3a4246; --today:#f2c230; --milestone:#e8eaea; --ok:#5cc48a; --warn:#e9a25a; --grp-bg:#3a444a; --grp-fg:#ffffff; --hol-a:rgba(130,170,220,.06); --hol-b:rgba(130,170,220,.15); --hol-edge:rgba(130,170,220,.35); --hol-fg:#a9c4e4; color-scheme:dark}
+  --absence:#7d878c; --absence-soft:#3a4246; --today:#f2c230; --milestone:#e8eaea; --ok:#5cc48a; --warn:#e9a25a; --grp-bg:#3a444a; --grp-fg:#ffffff; --hol-a:rgba(130,170,220,.06); --hol-b:rgba(130,170,220,.15); --hol-edge:rgba(130,170,220,.35); --hol-fg:#a9c4e4; --plan:#4cbf85; --plan-soft:#1f4733; --plan-fg:#0c2117; color-scheme:dark}
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14px}
 .wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 40px;display:grid;grid-template-columns:minmax(0,1fr);gap:18px;max-width:1800px;margin:0 auto}
 header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px}
@@ -51,7 +52,8 @@ h1{font-family:var(--f-display);font-weight:700;font-size:34px;letter-spacing:.0
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .sw{width:22px;height:10px;border-radius:2px;display:inline-block}
 .sw.bar{background:var(--bar)}
-.sw.ass{background:repeating-linear-gradient(135deg,var(--bar) 0 4px,var(--bar-soft) 4px 8px)}
+.sw.ass{background:repeating-linear-gradient(135deg,var(--plan) 0 4px,var(--plan-soft) 4px 8px)}
+.sw.eint{background:var(--plan)}
 .sw.abs{background:repeating-linear-gradient(135deg,var(--absence) 0 3px,var(--absence-soft) 3px 6px)}
 .sw.today{width:3px;height:14px;background:var(--today)}
 .sw.off{background:var(--weekend);box-shadow:inset 0 0 0 1px var(--line-strong)}
@@ -98,7 +100,9 @@ button:focus-visible{outline:2px solid var(--bar);outline-offset:2px}
 .bgc.mon{border-left:1px solid var(--line)}
 .todayline{position:absolute;top:0;bottom:0;width:2px;background:var(--today);z-index:2;pointer-events:none}
 .bar{position:absolute;top:6px;height:calc(var(--row-h) - 12px);background:var(--bar);border-radius:3px;z-index:1;color:var(--bar-fg);font:500 11px var(--f-mono);display:flex;align-items:center;padding:0 5px;white-space:nowrap;overflow:visible;box-sizing:border-box}
-.bar.ass{background:repeating-linear-gradient(135deg,var(--bar) 0 5px,var(--bar-soft) 5px 10px);color:var(--fg)}
+.bar.eint{background:var(--plan);color:var(--plan-fg)}
+.bar.ass{background:repeating-linear-gradient(135deg,var(--plan) 0 5px,var(--plan-soft) 5px 10px);color:var(--fg)}
+.bar.ass .in{background:var(--surface);color:var(--fg);padding:0 4px;border-radius:2px;line-height:14px}
 .bar .bl{position:absolute;left:calc(100% + 6px);color:var(--muted);font:11px var(--f-mono)}
 .bar .in{overflow:hidden;text-overflow:ellipsis}
 .abs{position:absolute;top:7px;height:20px;border-radius:3px;z-index:1;background:repeating-linear-gradient(135deg,var(--absence) 0 3px,var(--absence-soft) 3px 6px);font:500 10.5px var(--f-body);color:var(--fg);display:flex;align-items:center;white-space:nowrap;box-sizing:border-box}
@@ -168,7 +172,8 @@ tr:last-child td{border-bottom:none}
     </div>
     <div class="legend">
       <span><i class="sw bar"></i>Einsatz (Tg = Arbeitstage)</span>
-      <span><i class="sw ass"></i>Start/Dauer angenommen</span>
+      <span><i class="sw ass"></i>Nicht fix terminiert</span>
+      <span><i class="sw eint"></i>Zum Einteilen</span>
       <span><i class="sw ms"></i>Termin</span>
       <span><i class="sw abs"></i>Absenz</span>
       <span><i class="sw today"></i>Heute</span>
@@ -499,7 +504,7 @@ function render(){
       const tgTxt=String(+t.tg.toFixed(2));
       t.segs.forEach((sg,k)=>{
         const [,,last]=span(sg.start,sg.tg);const pcs=spanPieces(sg.start,sg.tg);
-        pcs.forEach(([s,e],pi)=>{const bar=el('div','bar'+(t.a?' ass':''));
+        pcs.forEach(([s,e],pi)=>{const bar=el('div','bar'+(t.a?' ass':'')+(/^zum einteilen$/i.test(g.team.trim())?' eint':''));
         bar.style.left=s*w+'px';bar.style.width=Math.max((e-s)*w,5)+'px';
         const lbl=k===t.segs.length-1&&pi===pcs.length-1?`${tgTxt} Tg`:'';
         if((e-s)*w>44)bar.innerHTML=`<span class="in">${lbl}</span>`;else if(lbl)bar.innerHTML=`<span class="bl">${lbl}</span>`;
