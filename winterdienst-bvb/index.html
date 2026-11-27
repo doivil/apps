@@ -30,7 +30,11 @@ header{display:grid;gap:14px;padding-bottom:14px;border-bottom:3px solid var(--a
 h1{font-family:var(--f-display);font-weight:700;font-size:28px;line-height:1;margin:0}
 .sub{color:var(--muted);font-size:14px;margin-top:4px}
 :focus-visible{outline:2px solid var(--steel);outline-offset:2px}
-.tabs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:6px}
+.auf{border:1.5px solid var(--line);border-radius:var(--r);padding:8px 8px 8px;margin-bottom:10px;background:var(--surface)}
+.auf h3{margin:0 0 6px 2px;font:700 15px/1.2 var(--f-display);letter-spacing:.02em;color:var(--muted)}
+.auf.bvb{border-left:5px solid #e2231a}.auf.let{border-left:5px solid #2e7d4f}.auf.all{border-left:5px solid #6b4fa0}
+.auf .tab{background:var(--bg)}
+.tabs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
 .tab{display:flex;text-align:left;align-items:center;gap:8px;min-height:48px;padding:6px 14px 6px 6px;border:1.5px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--fg);font:600 16px var(--f-body);cursor:pointer}
 .tab[aria-selected=true]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .nr{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:4px;color:#fff;font:700 22px/1 var(--f-display)}
@@ -126,9 +130,9 @@ li{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) 92px;
 <body>
 <div class="wrap">
   <header>
-    <div><h1>Winterdienst BAG &amp; HRAG</h1><div class="sub">Ablauf, Tramhaltestellen und Telefonliste.</div></div>
+    <div><h1>Winterdienst BAG &amp; HRAG</h1><div class="sub">Aufträge BVB und Areal Letten Allschwil.</div></div>
   </header>
-  <div class="tabs" id="tabs" role="tablist"></div>
+  <div id="tabs"></div>
   <main id="m"><p class="msg">Lade Haltestellen …</p></main>
 </div>
 
@@ -149,7 +153,12 @@ let L=[],line=null,cur=0,list=[];
 
 function pick(){const hs=location.hash;if(hs==='#team'||hs==='#ablauf'||hs==='#pikett'||!hs){line=hs?hs.slice(1):'ablauf';render();return}const h=hs.replace('#linie-','');line=L.find(l=>l.nr===h)||L[0];render()}
 function render(){
-  $('tabs').innerHTML=`<button class="tab ab" role="tab" aria-selected="${line==='ablauf'}" data-nr="ablauf"><span class="nr" aria-hidden="true">!</span><span>Ablauf<small>Meldungen im Einsatz</small></span></button>`+L.map(l=>`<button class="tab" role="tab" aria-selected="${l===line}" data-nr="${esc(l.nr)}"><span class="nr" style="background:${esc(l.farbe||'#555')}">${esc(l.nr)}</span><span>${esc(l.name||('Linie '+l.nr))}<small>${esc(l.titel||'')}</small></span></button>`).join('')+`<button class="tab tm" role="tab" aria-selected="${line==='team'}" data-nr="team"><span class="nr" aria-hidden="true">☎</span><span>Team<small>Pikett &amp; Kontakte</small></span></button>`+`<button class="tab pk" role="tab" aria-selected="${line==='pikett'}" data-nr="pikett"><span class="nr" aria-hidden="true">P</span><span>Pikettliste<small>Wer hat Pikett</small></span></button>`;
+  const T=(nr,cls,sel,icon,ttl,sub,style)=>`<button class="tab ${cls}" role="tab" aria-selected="${sel}" data-nr="${esc(nr)}"><span class="nr" ${style||''} aria-hidden="true">${icon}</span><span>${ttl}<small>${sub}</small></span></button>`;
+  const LT=l=>T(l.nr,'',l===line,esc(l.nr),esc(l.name||('Linie '+l.nr)),esc(l.titel||''),`style="background:${esc(l.farbe||'#555')}"`);
+  const grp=(t,c,inner)=>inner?`<section class="auf ${c}"><h3>${t}</h3><div class="tabs" role="tablist">${inner}</div></section>`:'';
+  $('tabs').innerHTML=grp('Auftrag BVB · Tramhaltestellen','bvb',T('ablauf','ab',line==='ablauf','!','Ablauf','Meldungen im Einsatz')+L.filter(l=>(l.auftrag||'BVB')==='BVB').map(LT).join(''))
+   +grp('Auftrag Areal Letten Allschwil','let',L.filter(l=>l.auftrag==='Letten').map(LT).join(''))
+   +grp('Für beide Aufträge','all',T('team','tm',line==='team','☎','Team','Pikett &amp; Kontakte')+T('pikett','pk',line==='pikett','P','Pikettliste','Wer hat Pikett'));
   if(line==='team'){renderTeam();return}
   if(line==='ablauf'){renderAblauf();return}
   if(line==='pikett'){renderPikett();return}

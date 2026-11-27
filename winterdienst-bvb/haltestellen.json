@@ -71,7 +71,8 @@
       "gare.jpg"
      ]
     }
-   ]
+   ],
+   "auftrag": "BVB"
   },
   {
    "nr": "6",
@@ -134,7 +135,8 @@
       "lindenplatz.jpg"
      ]
     }
-   ]
+   ],
+   "auftrag": "BVB"
   },
   {
    "nr": "2",
@@ -157,7 +159,8 @@
       "hohle-gasse.jpg"
      ]
     }
-   ]
+   ],
+   "auftrag": "BVB"
   },
   {
    "nr": "A",
@@ -174,7 +177,8 @@
      ],
      "info": "Rapport Ärztehaus, Rapport Coop, Rapport Würth. Gelb = salzen und räumen. Zufahrt Coop erledigt bis 05.00 Uhr."
     }
-   ]
+   ],
+   "auftrag": "Letten"
   }
  ]
 }
