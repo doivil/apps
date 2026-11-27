@@ -75,6 +75,8 @@ li{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) 92px;
 .tab.ae .nr{background:#1d4f91}
 .steps.ext .n{background:#1d4f91}
 .tab.fe .nr{background:#b8860b}
+.tab.af .nr{background:#b8860b}
+.steps.fei .n{background:#b8860b}
 .auf.fei{border-left:5px solid #b8860b}
 .tab.ex .nr{background:#1d4f91;font-size:13px;white-space:nowrap;width:auto;min-width:34px;padding:0 5px;flex:none}
 .auf.ext{border-left:5px solid #1d4f91}
@@ -172,7 +174,7 @@ const mapsUrl=s=>G+encodeURIComponent(s.maps||(s.name+' '+(s.ort||'')));
 const img=f=>'img/'+encodeURIComponent(f);
 let L=[],line=null,cur=0,list=[];
 
-function pick(){const hs=location.hash;if(hs==='#team'||hs==='#ablauf'||hs==='#ablauf-letten'||hs==='#extern'||hs==='#feiertage'||hs==='#ablauf-extern'||hs==='#pikett'||!hs){line=hs?hs.slice(1):'ablauf';render();return}const h=hs.replace('#linie-','');line=L.find(l=>l.nr===h)||L[0];render()}
+function pick(){const hs=location.hash;if(hs==='#team'||hs==='#ablauf'||hs==='#ablauf-letten'||hs==='#extern'||hs==='#feiertage'||hs==='#ablauf-feiertage'||hs==='#ablauf-extern'||hs==='#pikett'||!hs){line=hs?hs.slice(1):'ablauf';render();return}const h=hs.replace('#linie-','');line=L.find(l=>l.nr===h)||L[0];render()}
 function render(){
   const T=(nr,cls,sel,icon,ttl,sub,style)=>`<button class="tab ${cls}" role="tab" aria-selected="${sel}" data-nr="${esc(nr)}"><span class="nr" ${style||''} aria-hidden="true">${icon}</span><span>${ttl}<small>${sub}</small></span></button>`;
   const LT=l=>T(l.nr,'',l===line,esc(l.nr),esc(l.name||l.titel||''),esc(l.name?(l.titel||''):('Linie '+l.nr)),`style="background:${esc(l.farbe||'#555')}"`);
@@ -180,7 +182,7 @@ function render(){
   $('tabs').innerHTML=grp('Auftrag BVB · Tramhaltestellen','bvb',T('ablauf','ab',line==='ablauf','!','Ablauf','Meldungen im Einsatz')+L.filter(l=>(l.auftrag||'BVB')==='BVB').map(LT).join(''))
    +grp('Auftrag Areal Letten Allschwil','let',T('ablauf-letten','al',line==='ablauf-letten','!','Ablauf Letten','Reihenfolge im Einsatz')+L.filter(l=>l.auftrag==='Letten').map(LT).join(''))
    +grp('Auftrag BVB · Schneebekämpfung Extern (&gt; 10 cm)','ext',T('ablauf-extern','ae',line==='ablauf-extern','!','Ablauf','Meldungen im Einsatz')+T('extern','ex',line==='extern','A–E','Arbeitsaufträge','Hans Reich · Bertschmann · Weber'))
-   +grp('Auftrag BVB · Unterstützung über Feiertage','fei',T('feiertage','fe',line==='feiertage','★','Zusatzpikett','24.12. – 03.01.'))
+   +grp('Auftrag BVB · Unterstützung über Feiertage','fei',T('ablauf-feiertage','af',line==='ablauf-feiertage','!','Ablauf','Meldungen im Einsatz')+T('feiertage','fe',line==='feiertage','★','Zusatzpikett','24.12. – 03.01.'))
    +grp('Für alle Aufträge','all',T('team','tm',line==='team','☎','Team','Pikett &amp; Kontakte')+T('pikett','pk',line==='pikett','P','Pikettliste','Wer hat Pikett'));
   if(line==='team'){renderTeam();return}
   if(line==='ablauf'){renderAblauf();return}
@@ -188,6 +190,7 @@ function render(){
   if(line==='pikett'){renderPikett();return}
   if(line==='extern'){renderExtern();return}
   if(line==='feiertage'){renderFeiertage();return}
+  if(line==='ablauf-feiertage'){renderAblaufFeiertage();return}
   if(line==='ablauf-extern'){renderAblaufExtern();return}
   list=line.haltestellen||[];
   const orte=[...new Set(list.map(s=>s.ort||''))];
@@ -195,7 +198,7 @@ function render(){
   $('m').innerHTML=(list.length?orte.map(o=>`<h2>${esc(o)}</h2><ol>`+list.map((s,k)=>(s.ort||'')!==o?'':`<li><div class="dot"></div><div><div class="name">${esc(s.name)}</div>${s.info?`<div class="sub">${esc(s.info)}</div>`:''}<a class="maps" href="${esc(mapsUrl(s))}" target="_blank" rel="noopener">Google Maps ↗</a></div>${(s.bilder||[]).length?`<button class="thumb" data-k="${k}" aria-label="Bild ${esc(s.name)} anzeigen"><img src="${esc(img(s.bilder[0]))}" alt="" loading="lazy">${s.bilder.length>1?`<span>${s.bilder.length} Bilder</span>`:''}</button>`:'<div class="nobild">Noch kein Bild</div>'}</li>`).join('')+'</ol>').join(''):'<p class="msg">Für diese Linie sind noch keine Haltestellen erfasst.</p>')
 ;
 }
-$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){history.replaceState(null,'',['team','ablauf','ablauf-letten','ablauf-extern','extern','feiertage','pikett'].includes(b.dataset.nr)?'#'+b.dataset.nr:'#linie-'+b.dataset.nr);pick();window.scrollTo(0,0)}});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){history.replaceState(null,'',['team','ablauf','ablauf-letten','ablauf-extern','extern','feiertage','ablauf-feiertage','pikett'].includes(b.dataset.nr)?'#'+b.dataset.nr:'#linie-'+b.dataset.nr);pick();window.scrollTo(0,0)}});
 window.addEventListener('hashchange',pick);
 
 const v=$('v'),vs=$('vs');
@@ -405,6 +408,18 @@ const ABE=[
 ];
 function renderAblaufExtern(){
   $('m').innerHTML='<h2>Ablauf Schneebekämpfung Extern</h2><ol class="steps ext">'+ABE.map((s,i)=>`<li${s.key?' class="key"':''}><span class="n">${i+1}</span><div><b>${esc(s.t)}</b><p>${esc(s.d)}</p></div></li>`).join('')+'</ol>';
+}
+
+const ABF=[
+ {t:'BVB meldet an Pikettverantwortlichen',d:'Die BVB meldet den Einsatz an den Pikettverantwortlichen.'},
+ {t:'Pikettverantwortlicher bietet Zusatzpikett auf',d:'Der Pikettverantwortliche bietet das Zusatzpikett auf.'},
+ {t:'Einsatz gemäss Anweisung BVB',d:'Einsatz gemäss Anweisung der BVB zur Unterstützung des BVB-Betriebspersonals.',key:1},
+ {t:'Beginn im Chat melden',d:'Beim Beginn des Einsatzes im Gruppenchat melden.'},
+ {t:'Ende im Chat melden',d:'Beim Ende des Einsatzes im Gruppenchat melden.'},
+ {t:'Stundenrapport',d:'Die Stundenrapportierung wie gewohnt machen.'}
+];
+function renderAblaufFeiertage(){
+  $('m').innerHTML='<h2>Ablauf Unterstützung über Feiertage</h2><ol class="steps fei">'+ABF.map((s,i)=>`<li${s.key?' class="key"':''}><span class="n">${i+1}</span><div><b>${esc(s.t)}</b><p>${esc(s.d)}</p></div></li>`).join('')+'</ol>';
 }
 
 const ABL=[
