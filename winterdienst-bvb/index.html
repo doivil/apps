@@ -182,7 +182,7 @@ function render(){
   $('tabs').innerHTML=grp('Auftrag BVB · Tramhaltestellen','bvb',T('ablauf','ab',line==='ablauf','!','Ablauf','Meldungen im Einsatz')+L.filter(l=>(l.auftrag||'BVB')==='BVB').map(LT).join(''))
    +grp('Auftrag Areal Letten Allschwil','let',T('ablauf-letten','al',line==='ablauf-letten','!','Ablauf Letten','Reihenfolge im Einsatz')+L.filter(l=>l.auftrag==='Letten').map(LT).join(''))
    +grp('Auftrag BVB · Schneebekämpfung Extern (&gt; 10 cm)','ext',T('ablauf-extern','ae',line==='ablauf-extern','!','Ablauf','Meldungen im Einsatz')+T('extern','ex',line==='extern','A–E','Arbeitsaufträge','Hans Reich · Bertschmann · Weber'))
-   +grp('Auftrag BVB · Unterstützung über Feiertage','fei',T('ablauf-feiertage','af',line==='ablauf-feiertage','!','Ablauf','Meldungen im Einsatz')+T('feiertage','fe',line==='feiertage','★','Zusatzpikett','24.12. – 03.01.'))
+   +grp('Auftrag BVB · Unterstützung über Feiertage','fei',T('ablauf-feiertage','af',line==='ablauf-feiertage','!','Ablauf','Meldungen im Einsatz')+T('feiertage','fe',line==='feiertage','D','Einsatzorte','Depots Tram und Bus'))
    +grp('Für alle Aufträge','all',T('team','tm',line==='team','☎','Team','Pikett &amp; Kontakte')+T('pikett','pk',line==='pikett','P','Pikettliste','Wer hat Pikett'));
   if(line==='team'){renderTeam();return}
   if(line==='ablauf'){renderAblauf();return}
@@ -304,9 +304,9 @@ function renderFeiertage(){
   const fmt=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('de-CH',{weekday:'short',day:'numeric',month:'short'})};
   const tk=iso(pikettToday());
   const names=[...new Set(rows.map(r=>r[2]))];
-  $('m').innerHTML='<h2>Unterstützung BVB über Feiertage</h2>'
+  $('m').innerHTML='<h2>Einsatzorte</h2><ul class="team"><li><div><b>Depots Tram</b><small>gemäss Anweisung BVB</small></div></li><li><div><b>Depots Bus</b><small>gemäss Anweisung BVB</small></div></li></ul><p class="sub" style="margin:8px 0 0">Wo genau eingesetzt wird, bestimmt die BVB beim Aufgebot.</p><h2>Zusatzpikett</h2>'
    +(days.length?`<p class="sub" style="margin:0 0 10px">Zusatzpikett vom ${esc(fmt(days[0]))} bis ${esc(fmt(days[days.length-1]))}, laut Pikettliste (Gruppe Weiss).</p>`:'')
-   +(names.length?'<h2>Im Zusatzpikett</h2><ul class="team">'+names.map(n=>{const p=telFor(n);return `<li><div><b>${esc(n)}</b></div>${p?`<a class="call" href="${esc(telHref(p.tel))}">Anrufen<span>${esc(p.tel)}</span></a>`:'<span class="miss">Nummer fehlt</span>'}</li>`}).join('')+'</ul>':'')
+   +(names.length?'<ul class="team">'+names.map(n=>{const p=telFor(n);return `<li><div><b>${esc(n)}</b></div>${p?`<a class="call" href="${esc(telHref(p.tel))}">Anrufen<span>${esc(p.tel)}</span></a>`:'<span class="miss">Nummer fehlt</span>'}</li>`}).join('')+'</ul>':'')
    +(days.length?'<h2>Tage</h2><ul class="plist">'+days.map(k=>`<li class="pday${k===tk?' now':''}"><div class="pdh"><b>${esc(fmt(k))}</b>${k===tk?'<span>heute</span>':''}</div><div class="pgr"><span>${rows.filter(r=>r[0]===k).map(r=>esc(r[2])+(r[3]!=='Pikett'?` <em>(${esc(r[3])})</em>`:'')).join(', ')}</span></div></li>`).join('')+'</ul>':'<p class="msg">In der Pikettliste ist kein Zusatzpikett eingetragen.</p>');
 }
 
