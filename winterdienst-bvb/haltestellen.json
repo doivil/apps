@@ -1,0 +1,145 @@
+{
+ "hinweis": "Neue Haltestelle: Eintrag in der passenden Linie ergänzen und das Bild in den Ordner img/ hochladen. maps = Suchbegriff für Google Maps, bilder = Dateinamen im Ordner img/ (leer lassen, wenn noch kein Bild).",
+ "linien": [
+  {
+   "nr": "3",
+   "titel": "Birsfelden & Saint-Louis",
+   "farbe": "#00843d",
+   "haltestellen": [
+    {
+     "name": "Birsfelden Hard",
+     "ort": "Birsfelden",
+     "maps": "Tramhaltestelle Hard Birsfelden",
+     "bilder": [
+      "hard.jpg"
+     ]
+    },
+    {
+     "name": "Salinenstrasse",
+     "ort": "Birsfelden",
+     "maps": "Tramhaltestelle Salinenstrasse Birsfelden",
+     "bilder": [
+      "saline.jpg"
+     ]
+    },
+    {
+     "name": "Schulstrasse",
+     "ort": "Birsfelden",
+     "maps": "Tramhaltestelle Schulstrasse Birsfelden",
+     "bilder": [
+      "schul.jpg"
+     ]
+    },
+    {
+     "name": "Bären",
+     "ort": "Birsfelden",
+     "maps": "Tramhaltestelle Bären Birsfelden",
+     "bilder": [
+      "baeren.jpg"
+     ]
+    },
+    {
+     "name": "Saint-Exupéry",
+     "ort": "Saint-Louis (F)",
+     "maps": "Arrêt tram Saint-Exupéry Saint-Louis France",
+     "bilder": [
+      "exupery.jpg"
+     ]
+    },
+    {
+     "name": "Place Mermoz",
+     "ort": "Saint-Louis (F)",
+     "maps": "Arrêt tram Place Mermoz Saint-Louis France",
+     "bilder": [
+      "mermoz.jpg"
+     ]
+    },
+    {
+     "name": "Soleil",
+     "ort": "Saint-Louis (F)",
+     "maps": "Arrêt tram Soleil Saint-Louis France",
+     "bilder": [
+      "soleil-1.jpg",
+      "soleil-2.jpg"
+     ]
+    },
+    {
+     "name": "Gare de Saint-Louis",
+     "ort": "Saint-Louis (F)",
+     "maps": "Arrêt tram Gare de Saint-Louis France",
+     "bilder": [
+      "gare.jpg"
+     ]
+    }
+   ]
+  },
+  {
+   "nr": "6",
+   "titel": "Allschwil",
+   "farbe": "#0069b4",
+   "haltestellen": [
+    {
+     "name": "Allschwil Dorf",
+     "ort": "Allschwil",
+     "maps": "Tramhaltestelle Allschwil Dorf",
+     "bilder": []
+    },
+    {
+     "name": "Binningerstrasse",
+     "ort": "Allschwil",
+     "maps": "Tramhaltestelle Binningerstrasse Allschwil",
+     "bilder": []
+    },
+    {
+     "name": "Gartenstrasse",
+     "ort": "Allschwil",
+     "maps": "Tramhaltestelle Gartenstrasse Allschwil",
+     "bilder": []
+    },
+    {
+     "name": "Allschwil Ziegelei",
+     "ort": "Allschwil",
+     "maps": "Tramhaltestelle Ziegelei Allschwil",
+     "bilder": []
+    },
+    {
+     "name": "Allschwil Kirche",
+     "ort": "Allschwil",
+     "maps": "Tramhaltestelle Kirche Allschwil",
+     "bilder": []
+    },
+    {
+     "name": "Merkurstrasse",
+     "ort": "Allschwil",
+     "maps": "Tramhaltestelle Merkurstrasse Allschwil",
+     "bilder": []
+    },
+    {
+     "name": "Allschwil Lindenplatz",
+     "ort": "Allschwil",
+     "maps": "Tramhaltestelle Lindenplatz Allschwil",
+     "bilder": []
+    }
+   ]
+  },
+  {
+   "nr": "2",
+   "titel": "Binningen",
+   "farbe": "#a0522d",
+   "haltestellen": [
+    {
+     "name": "Binningen Kronenplatz",
+     "ort": "Binningen",
+     "maps": "Tramhaltestelle Kronenplatz Binningen",
+     "bilder": []
+    },
+    {
+     "name": "Hohle Gasse",
+     "ort": "Binningen",
+     "maps": "Tramhaltestelle Hohle Gasse Binningen",
+     "bilder": []
+    }
+   ]
+  }
+ ]
+}
