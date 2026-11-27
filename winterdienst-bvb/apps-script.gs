@@ -13,7 +13,9 @@
  *    Die PIN steht damit nur im Skript, nicht auf GitHub.
  * 4. «Bereitstellen» → «Neue Bereitstellung» → Typ «Web-App».
  *    Ausführen als: Ich · Zugriff: Jeder → «Bereitstellen», Zugriff erlauben.
- * 5. Die Web-App-URL (endet auf /exec) an Claude schicken.
+ * 5. Die Web-App-URL (endet auf /exec) steht in index.html unter EXEC.
+ *
+ * Eingerichtet am 27.11.2026 als Projekt «Winterdienst BVB App» im Konto livio.domeniconi@reich.ch.
  *
  * PIN ändern: Skripteigenschaft PIN anpassen, fertig (keine neue Bereitstellung nötig).
  */

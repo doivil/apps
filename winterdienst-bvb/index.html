@@ -137,7 +137,7 @@ $('vp').onclick=()=>step(-1);$('vnx').onclick=()=>step(1);
 document.addEventListener('keydown',e=>{if(!v.classList.contains('on'))return;if(e.key==='Escape')close();if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1)});
 
 // ---- Team / Telefonliste (Daten aus Google-Tabelle über Apps-Script, mit PIN) ----
-const EXEC="__EXEC__";
+const EXEC="https://script.google.com/macros/s/AKfycbzcEd33VW0MlSlJQJpKWIXNs1m_97LjkxNCa5t02gvlMs4re8FxhboznemKHLHA0Jvn/exec";
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 let people=null;
 function telHref(t){return 'tel:'+String(t).replace(/[^\d+]/g,'')}
