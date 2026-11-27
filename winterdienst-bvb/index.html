@@ -74,7 +74,9 @@ li{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) 92px;
 .tab.al .nr{background:#2e7d4f}
 .tab.ae .nr{background:#1d4f91}
 .steps.ext .n{background:#1d4f91}
-.tab.ex .nr{background:#1d4f91;font-size:13px;white-space:nowrap}
+.tab.fe .nr{background:#b8860b}
+.auf.fei{border-left:5px solid #b8860b}
+.tab.ex .nr{background:#1d4f91;font-size:13px;white-space:nowrap;width:auto;min-width:34px;padding:0 5px;flex:none}
 .auf.ext{border-left:5px solid #1d4f91}
 .steps.let .n{background:#2e7d4f}
 .tab.pk .nr{background:#6b4fa0}
@@ -170,7 +172,7 @@ const mapsUrl=s=>G+encodeURIComponent(s.maps||(s.name+' '+(s.ort||'')));
 const img=f=>'img/'+encodeURIComponent(f);
 let L=[],line=null,cur=0,list=[];
 
-function pick(){const hs=location.hash;if(hs==='#team'||hs==='#ablauf'||hs==='#ablauf-letten'||hs==='#extern'||hs==='#ablauf-extern'||hs==='#pikett'||!hs){line=hs?hs.slice(1):'ablauf';render();return}const h=hs.replace('#linie-','');line=L.find(l=>l.nr===h)||L[0];render()}
+function pick(){const hs=location.hash;if(hs==='#team'||hs==='#ablauf'||hs==='#ablauf-letten'||hs==='#extern'||hs==='#feiertage'||hs==='#ablauf-extern'||hs==='#pikett'||!hs){line=hs?hs.slice(1):'ablauf';render();return}const h=hs.replace('#linie-','');line=L.find(l=>l.nr===h)||L[0];render()}
 function render(){
   const T=(nr,cls,sel,icon,ttl,sub,style)=>`<button class="tab ${cls}" role="tab" aria-selected="${sel}" data-nr="${esc(nr)}"><span class="nr" ${style||''} aria-hidden="true">${icon}</span><span>${ttl}<small>${sub}</small></span></button>`;
   const LT=l=>T(l.nr,'',l===line,esc(l.nr),esc(l.name||l.titel||''),esc(l.name?(l.titel||''):('Linie '+l.nr)),`style="background:${esc(l.farbe||'#555')}"`);
@@ -178,12 +180,14 @@ function render(){
   $('tabs').innerHTML=grp('Auftrag BVB · Tramhaltestellen','bvb',T('ablauf','ab',line==='ablauf','!','Ablauf','Meldungen im Einsatz')+L.filter(l=>(l.auftrag||'BVB')==='BVB').map(LT).join(''))
    +grp('Auftrag Areal Letten Allschwil','let',T('ablauf-letten','al',line==='ablauf-letten','!','Ablauf Letten','Reihenfolge im Einsatz')+L.filter(l=>l.auftrag==='Letten').map(LT).join(''))
    +grp('Auftrag BVB · Schneebekämpfung Extern (&gt; 10 cm)','ext',T('ablauf-extern','ae',line==='ablauf-extern','!','Ablauf','Meldungen im Einsatz')+T('extern','ex',line==='extern','A–E','Arbeitsaufträge','Hans Reich · Bertschmann · Weber'))
+   +grp('Auftrag BVB · Unterstützung über Feiertage','fei',T('feiertage','fe',line==='feiertage','★','Zusatzpikett','24.12. – 03.01.'))
    +grp('Für alle Aufträge','all',T('team','tm',line==='team','☎','Team','Pikett &amp; Kontakte')+T('pikett','pk',line==='pikett','P','Pikettliste','Wer hat Pikett'));
   if(line==='team'){renderTeam();return}
   if(line==='ablauf'){renderAblauf();return}
   if(line==='ablauf-letten'){renderAblaufLetten();return}
   if(line==='pikett'){renderPikett();return}
   if(line==='extern'){renderExtern();return}
+  if(line==='feiertage'){renderFeiertage();return}
   if(line==='ablauf-extern'){renderAblaufExtern();return}
   list=line.haltestellen||[];
   const orte=[...new Set(list.map(s=>s.ort||''))];
@@ -191,7 +195,7 @@ function render(){
   $('m').innerHTML=(list.length?orte.map(o=>`<h2>${esc(o)}</h2><ol>`+list.map((s,k)=>(s.ort||'')!==o?'':`<li><div class="dot"></div><div><div class="name">${esc(s.name)}</div>${s.info?`<div class="sub">${esc(s.info)}</div>`:''}<a class="maps" href="${esc(mapsUrl(s))}" target="_blank" rel="noopener">Google Maps ↗</a></div>${(s.bilder||[]).length?`<button class="thumb" data-k="${k}" aria-label="Bild ${esc(s.name)} anzeigen"><img src="${esc(img(s.bilder[0]))}" alt="" loading="lazy">${s.bilder.length>1?`<span>${s.bilder.length} Bilder</span>`:''}</button>`:'<div class="nobild">Noch kein Bild</div>'}</li>`).join('')+'</ol>').join(''):'<p class="msg">Für diese Linie sind noch keine Haltestellen erfasst.</p>')
 ;
 }
-$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){history.replaceState(null,'',['team','ablauf','ablauf-letten','ablauf-extern','extern','pikett'].includes(b.dataset.nr)?'#'+b.dataset.nr:'#linie-'+b.dataset.nr);pick();window.scrollTo(0,0)}});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){history.replaceState(null,'',['team','ablauf','ablauf-letten','ablauf-extern','extern','feiertage','pikett'].includes(b.dataset.nr)?'#'+b.dataset.nr:'#linie-'+b.dataset.nr);pick();window.scrollTo(0,0)}});
 window.addEventListener('hashchange',pick);
 
 const v=$('v'),vs=$('vs');
@@ -234,9 +238,9 @@ async function loadTeam(quiet){
   try{
     const r=await fetch(EXEC+'?pin='+encodeURIComponent(store.get('wd-pin')||'')+'&t='+Date.now(),{credentials:'omit'});
     const d=await r.json();
-    if(!d.ok){if(d.error==='pin'){store.del('wd-pin');if(line==='team'||line==='pikett')pinForm('PIN falsch.');return}throw new Error(d.error)}
-    people=d.people||[];pikett=Array.isArray(d.pikett)?d.pikett:null;if(line==='team')showTeam();if(line==='ablauf')renderAblauf();if(line==='pikett')renderPikett();
-  }catch(e){if(line!=='team'&&line!=='pikett')return;$('m').innerHTML='<p class="msg">Telefonliste konnte nicht geladen werden. Bitte Verbindung prüfen.</p><button class="lnk" id="rt">Nochmals versuchen</button>';$('rt').onclick=()=>loadTeam()}
+    if(!d.ok){if(d.error==='pin'){store.del('wd-pin');if(line==='team'||line==='pikett'||line==='feiertage')pinForm('PIN falsch.');return}throw new Error(d.error)}
+    people=d.people||[];pikett=Array.isArray(d.pikett)?d.pikett:null;if(line==='team')showTeam();if(line==='ablauf')renderAblauf();if(line==='pikett')renderPikett();if(line==='feiertage')renderFeiertage();
+  }catch(e){if(line!=='team'&&line!=='pikett'&&line!=='feiertage')return;$('m').innerHTML='<p class="msg">Telefonliste konnte nicht geladen werden. Bitte Verbindung prüfen.</p><button class="lnk" id="rt">Nochmals versuchen</button>';$('rt').onclick=()=>loadTeam()}
 }
 function showTeam(){
   const hl=p=>/leitstelle/i.test(p.name);
@@ -287,6 +291,21 @@ function closeAuftrag(){$('pv').classList.remove('on');document.body.style.overf
 $('m').addEventListener('click',e=>{const b=e.target.closest('.open');if(b)openAuftrag(b.dataset.b)});
 $('pvx').onclick=()=>{closeAuftrag();try{if(history.state&&history.state.pv)history.back()}catch(e){}};
 window.addEventListener('popstate',closeAuftrag);
+
+// ---- Auftrag BVB Unterstützung über Feiertage (Zusatzpikett aus der Pikettliste) ----
+function renderFeiertage(){
+  if(!EXEC||EXEC.startsWith('__')){$('m').innerHTML='<p class="msg">Noch nicht verbunden.</p>';return}
+  if(!people){if(!store.get('wd-pin'))return pinForm();return loadTeam()}
+  const rows=(pikett||[]).filter(r=>/Zusatzpikett/.test(r[1]));
+  const days=[...new Set(rows.map(r=>r[0]))].sort();
+  const fmt=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('de-CH',{weekday:'short',day:'numeric',month:'short'})};
+  const tk=iso(pikettToday());
+  const names=[...new Set(rows.map(r=>r[2]))];
+  $('m').innerHTML='<h2>Unterstützung BVB über Feiertage</h2>'
+   +(days.length?`<p class="sub" style="margin:0 0 10px">Zusatzpikett vom ${esc(fmt(days[0]))} bis ${esc(fmt(days[days.length-1]))}, laut Pikettliste (Gruppe Weiss).</p>`:'')
+   +(names.length?'<h2>Im Zusatzpikett</h2><ul class="team">'+names.map(n=>{const p=telFor(n);return `<li><div><b>${esc(n)}</b></div>${p?`<a class="call" href="${esc(telHref(p.tel))}">Anrufen<span>${esc(p.tel)}</span></a>`:'<span class="miss">Nummer fehlt</span>'}</li>`}).join('')+'</ul>':'')
+   +(days.length?'<h2>Tage</h2><ul class="plist">'+days.map(k=>`<li class="pday${k===tk?' now':''}"><div class="pdh"><b>${esc(fmt(k))}</b>${k===tk?'<span>heute</span>':''}</div><div class="pgr"><span>${rows.filter(r=>r[0]===k).map(r=>esc(r[2])+(r[3]!=='Pikett'?` <em>(${esc(r[3])})</em>`:'')).join(', ')}</span></div></li>`).join('')+'</ul>':'<p class="msg">In der Pikettliste ist kein Zusatzpikett eingetragen.</p>');
+}
 
 // ---- Pikettliste (Daten nur über das Apps-Script, mit PIN) ----
 let pDay=null;
