@@ -82,43 +82,57 @@
      "name": "Allschwil Dorf",
      "ort": "Allschwil",
      "maps": "Tramhaltestelle Allschwil Dorf",
-     "bilder": []
+     "bilder": [
+      "allschwil-dorf.jpg"
+     ]
     },
     {
      "name": "Binningerstrasse",
      "ort": "Allschwil",
      "maps": "Tramhaltestelle Binningerstrasse Allschwil",
-     "bilder": []
+     "bilder": [
+      "binningerstrasse.jpg"
+     ]
     },
     {
      "name": "Gartenstrasse",
      "ort": "Allschwil",
      "maps": "Tramhaltestelle Gartenstrasse Allschwil",
-     "bilder": []
+     "bilder": [
+      "gartenstrasse.jpg"
+     ]
     },
     {
      "name": "Allschwil Ziegelei",
      "ort": "Allschwil",
      "maps": "Tramhaltestelle Ziegelei Allschwil",
-     "bilder": []
+     "bilder": [
+      "ziegelei.jpg"
+     ]
     },
     {
      "name": "Allschwil Kirche",
      "ort": "Allschwil",
      "maps": "Tramhaltestelle Kirche Allschwil",
-     "bilder": []
+     "bilder": [
+      "kirche.jpg"
+     ]
     },
     {
      "name": "Merkurstrasse",
      "ort": "Allschwil",
      "maps": "Tramhaltestelle Merkurstrasse Allschwil",
-     "bilder": []
+     "bilder": [
+      "merkurstrasse.jpg"
+     ]
     },
     {
      "name": "Allschwil Lindenplatz",
      "ort": "Allschwil",
      "maps": "Tramhaltestelle Lindenplatz Allschwil",
-     "bilder": []
+     "bilder": [
+      "lindenplatz.jpg"
+     ]
     }
    ]
   },
@@ -131,13 +145,17 @@
      "name": "Binningen Kronenplatz",
      "ort": "Binningen",
      "maps": "Tramhaltestelle Kronenplatz Binningen",
-     "bilder": []
+     "bilder": [
+      "kronenplatz.jpg"
+     ]
     },
     {
      "name": "Hohle Gasse",
      "ort": "Binningen",
      "maps": "Tramhaltestelle Hohle Gasse Binningen",
-     "bilder": []
+     "bilder": [
+      "hohle-gasse.jpg"
+     ]
     }
    ]
   }
