@@ -4,7 +4,7 @@
 |---|---|
 | Absenzen- & Ferienmeldung | https://doivil.github.io/apps/absenzen/ |
 | Tagesprogramm | https://doivil.github.io/apps/tagesprogramm/ |
-| Winterdienst BVB | https://doivil.github.io/apps/winterdienst-bvb/ |
+| Winterdienst BAG & HRAG | https://doivil.github.io/apps/winterdienst-bvb/ |
 
 Die Apps speichern keine Daten auf GitHub. Meldungen gehen direkt in die Google-Tabellen der Firma.
 

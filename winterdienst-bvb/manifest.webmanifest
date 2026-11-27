@@ -1,6 +1,6 @@
 {
- "name": "Winterdienst BVB H. Reich AG",
- "short_name": "Winterdienst BVB",
+ "name": "Winterdienst BAG & HRAG",
+ "short_name": "Winterdienst",
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
@@ -8,7 +8,16 @@
  "theme_color": "#e2231a",
  "lang": "de",
  "icons": [
-  {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
-  {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any maskable"
+  }
  ]
 }
