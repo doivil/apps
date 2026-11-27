@@ -64,6 +64,16 @@ li{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) 92px;
 .team li.hl{background:#ffd60a;border-color:#e0b800;color:#1d2226}
 .team li.hl small{color:#3d3a20}
 .tab.tm .nr{background:var(--steel)}
+.tab.ab .nr{background:var(--accent)}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:40px minmax(0,1fr);align-items:start;gap:12px;padding:12px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r)}
+.steps li.key{border-color:#e0b800;box-shadow:inset 4px 0 0 #ffd60a}
+.steps .n{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;font:700 20px/1 var(--f-display)}
+.steps b{display:block;font:600 20px/1.15 var(--f-display);margin-top:6px}
+.steps p{margin:4px 0 0;font-size:15px;color:var(--muted)}
+.steps .calls{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.steps .call{flex:0 1 auto}
+.call.off{background:var(--sunk);color:var(--muted)}
 #v{position:fixed;inset:0;background:#000;color:#fff;display:none;flex-direction:column;z-index:10}
 #v.on{display:flex}
 .vt{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 10px}
@@ -84,7 +94,7 @@ li{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) 92px;
 <body>
 <div class="wrap">
   <header>
-    <div><h1>Winterdienst BVB</h1><div class="sub">Tramhaltestellen und Pikett-Telefonliste. Bild antippen für die grosse Ansicht.</div></div>
+    <div><h1>Winterdienst BVB</h1><div class="sub">Ablauf, Tramhaltestellen und Telefonliste.</div></div>
   </header>
   <div class="tabs" id="tabs" role="tablist"></div>
   <main id="m"><p class="msg">Lade Haltestellen …</p></main>
@@ -105,17 +115,18 @@ const mapsUrl=s=>G+encodeURIComponent(s.maps||(s.name+' '+(s.ort||'')));
 const img=f=>'img/'+encodeURIComponent(f);
 let L=[],line=null,cur=0,list=[];
 
-function pick(){if(location.hash==='#team'){line='team';render();return}const h=location.hash.replace('#linie-','');line=L.find(l=>l.nr===h)||L[0];render()}
+function pick(){const hs=location.hash;if(hs==='#team'||hs==='#ablauf'||!hs){line=hs==='#team'?'team':'ablauf';render();return}const h=hs.replace('#linie-','');line=L.find(l=>l.nr===h)||L[0];render()}
 function render(){
-  $('tabs').innerHTML=L.map(l=>`<button class="tab" role="tab" aria-selected="${l===line}" data-nr="${esc(l.nr)}"><span class="nr" style="background:${esc(l.farbe||'#555')}">${esc(l.nr)}</span><span>Linie ${esc(l.nr)}<small>${esc(l.titel||'')}</small></span></button>`).join('')+`<button class="tab tm" role="tab" aria-selected="${line==='team'}" data-nr="team"><span class="nr" aria-hidden="true">☎</span><span>Team<small>Pikett &amp; Kontakte</small></span></button>`;
+  $('tabs').innerHTML=`<button class="tab ab" role="tab" aria-selected="${line==='ablauf'}" data-nr="ablauf"><span class="nr" aria-hidden="true">!</span><span>Ablauf<small>Meldungen im Einsatz</small></span></button>`+L.map(l=>`<button class="tab" role="tab" aria-selected="${l===line}" data-nr="${esc(l.nr)}"><span class="nr" style="background:${esc(l.farbe||'#555')}">${esc(l.nr)}</span><span>Linie ${esc(l.nr)}<small>${esc(l.titel||'')}</small></span></button>`).join('')+`<button class="tab tm" role="tab" aria-selected="${line==='team'}" data-nr="team"><span class="nr" aria-hidden="true">☎</span><span>Team<small>Pikett &amp; Kontakte</small></span></button>`;
   if(line==='team'){renderTeam();return}
+  if(line==='ablauf'){renderAblauf();return}
   list=line.haltestellen||[];
   const orte=[...new Set(list.map(s=>s.ort||''))];
   $('m').style.setProperty('--lc',line.farbe||'#555');
   $('m').innerHTML=(list.length?orte.map(o=>`<h2>${esc(o)}</h2><ol>`+list.map((s,k)=>(s.ort||'')!==o?'':`<li><div class="dot"></div><div><div class="name">${esc(s.name)}</div><a class="maps" href="${esc(mapsUrl(s))}" target="_blank" rel="noopener">Google Maps ↗</a></div>${(s.bilder||[]).length?`<button class="thumb" data-k="${k}" aria-label="Bild ${esc(s.name)} anzeigen"><img src="${esc(img(s.bilder[0]))}" alt="" loading="lazy">${s.bilder.length>1?`<span>${s.bilder.length} Bilder</span>`:''}</button>`:'<div class="nobild">Noch kein Bild</div>'}</li>`).join('')+'</ol>').join(''):'<p class="msg">Für diese Linie sind noch keine Haltestellen erfasst.</p>')
    +(line.nr==='3'?'<p class="note">Nur jedes zweite Tram der Linie 3 fährt bis Gare de Saint-Louis, die übrigen wenden am Burgfelderhof.</p>':'');
 }
-$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){history.replaceState(null,'',b.dataset.nr==='team'?'#team':'#linie-'+b.dataset.nr);pick();window.scrollTo(0,0)}});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){history.replaceState(null,'',b.dataset.nr==='team'||b.dataset.nr==='ablauf'?'#'+b.dataset.nr:'#linie-'+b.dataset.nr);pick();window.scrollTo(0,0)}});
 window.addEventListener('hashchange',pick);
 
 const v=$('v'),vs=$('vs');
@@ -153,14 +164,14 @@ function renderTeam(){
   if(!store.get('wd-pin'))return pinForm();
   loadTeam();
 }
-async function loadTeam(){
-  $('m').innerHTML='<p class="msg">Lade Telefonliste …</p>';
+async function loadTeam(quiet){
+  if(!quiet)$('m').innerHTML='<p class="msg">Lade Telefonliste …</p>';
   try{
     const r=await fetch(EXEC+'?pin='+encodeURIComponent(store.get('wd-pin')||'')+'&t='+Date.now(),{credentials:'omit'});
     const d=await r.json();
-    if(!d.ok){if(d.error==='pin'){store.del('wd-pin');return pinForm('PIN falsch.')}throw new Error(d.error)}
-    people=d.people||[];if(line==='team')showTeam();
-  }catch(e){$('m').innerHTML='<p class="msg">Telefonliste konnte nicht geladen werden. Bitte Verbindung prüfen.</p><button class="lnk" id="rt">Nochmals versuchen</button>';$('rt').onclick=loadTeam}
+    if(!d.ok){if(d.error==='pin'){store.del('wd-pin');if(line==='team')pinForm('PIN falsch.');return}throw new Error(d.error)}
+    people=d.people||[];if(line==='team')showTeam();if(line==='ablauf')renderAblauf();
+  }catch(e){if(line!=='team')return;$('m').innerHTML='<p class="msg">Telefonliste konnte nicht geladen werden. Bitte Verbindung prüfen.</p><button class="lnk" id="rt">Nochmals versuchen</button>';$('rt').onclick=()=>loadTeam()}
 }
 function showTeam(){
   const hl=p=>/leitstelle/i.test(p.name);
@@ -168,6 +179,24 @@ function showTeam(){
   $('m').innerHTML='<h2>Team &amp; Telefonnummern</h2>'+(list.length?'<ul class="team">'+list.map(p=>`<li${/leitstelle/i.test(p.name)?' class="hl"':''}><div><b>${esc(p.name)}</b>${p.funktion?`<small>${esc(p.funktion)}</small>`:''}</div><a class="call" href="${esc(telHref(p.tel))}">Anrufen<span>${esc(p.tel)}</span></a></li>`).join('')+'</ul>':'<p class="msg">Noch keine Nummern erfasst.</p>')
    +'<p class="note">Die Liste kommt aus der Google-Tabelle «Pikett Winterdienst – Telefonliste». Angezeigt werden alle mit Nummer. Änderungen dort erscheinen hier beim nächsten Öffnen. <button class="lnk" id="lo">PIN auf diesem Handy löschen</button></p>';
   $('lo').onclick=()=>{store.del('wd-pin');people=null;pinForm()};
+}
+
+// ---- Ablauf (Meldungen vor und während dem Einsatz). Nummern kommen aus der Telefonliste. ----
+const AB=[
+ {t:'BVB ruft den Pikett an',d:'Die BVB meldet sich beim Pikett: Hell (Bertschmann) oder Livio (Reich).',c:['hell','domeniconi']},
+ {t:'Zeit vom BVB-Anruf in den Chat',d:'Uhrzeit des Anrufs und wann der Einsatz beginnt in den Gruppenchat schreiben.'},
+ {t:'Rueher oder Fernando anrufen',d:'Rueher oder Fernando alarmiert die restliche Mannschaft.',c:['rueher','ribeiro']},
+ {t:'Beginn an BVB Leitstelle melden',d:'Beginn Frankreich / Baselland melden. Immer melden!',c:['leitstelle'],key:1},
+ {t:'Frankreich fertig: Abmeldung',d:'Wenn Frankreich fertig ist und ihr bei der ersten Haltestelle in Birsfelden seid: Leitstelle anrufen, Abmeldung Frankreich.',c:['leitstelle'],key:1},
+ {t:'Birsfelden fertig: andere Gruppe fragen',d:'Wenn Birsfelden fertig ist, bei der anderen Gruppe (Allschwil) nachfragen und eventuell helfen.'},
+ {t:'Zurück im Magazin: abmelden',d:'Fernando meldet sich bei der Leitstelle ab.',c:['leitstelle'],key:1}
+];
+function findP(k){return (people||[]).find(p=>p.tel&&p.name.toLowerCase().includes(k))}
+function renderAblauf(){
+  if(!people&&store.get('wd-pin')&&EXEC&&!EXEC.startsWith('__')&&!renderAblauf.busy){renderAblauf.busy=1;loadTeam(1).finally(()=>{renderAblauf.busy=0})}
+  const btn=k=>{const p=findP(k);return p?`<a class="call" href="${esc(telHref(p.tel))}">${esc(p.name.replace(/\s*\(.*\)/,''))}<span>${esc(p.tel)}</span></a>`:''};
+  const locked=!people;
+  $('m').innerHTML='<h2>Ablauf Einsatz</h2><ol class="steps">'+AB.map((s,i)=>`<li${s.key?' class="key"':''}><span class="n">${i+1}</span><div><b>${esc(s.t)}</b><p>${esc(s.d)}</p>${s.c?`<div class="calls">${locked?'<a class="call off" href="#team">Zum Anrufen: Team-PIN eingeben</a>':s.c.map(btn).join('')}</div>`:''}</div></li>`).join('')+'</ol>';
 }
 
 fetch('haltestellen.json?t='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{L=d.linien||[];if(!L.length)throw 0;pick()}).catch(()=>{$('m').innerHTML='<p class="msg">Haltestellen konnten nicht geladen werden. Bitte Verbindung prüfen und neu laden.</p>'});
