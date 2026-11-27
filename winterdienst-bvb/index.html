@@ -298,13 +298,14 @@ window.addEventListener('popstate',closeAuftrag);
 // ---- Auftrag BVB Unterstützung über Feiertage (Zusatzpikett aus der Pikettliste) ----
 function renderFeiertage(){
   if(!EXEC||EXEC.startsWith('__')){$('m').innerHTML='<p class="msg">Noch nicht verbunden.</p>';return}
-  if(!people){if(!store.get('wd-pin'))return pinForm();return loadTeam()}
+  const ORTE='<h2>Einsatzorte</h2><ul class="team"><li><div><b>Depots Tram</b><small>gemäss Anweisung BVB</small></div></li><li><div><b>Depots Bus</b><small>gemäss Anweisung BVB</small></div></li></ul><p class="sub" style="margin:8px 0 0">Wo genau eingesetzt wird, bestimmt die BVB beim Aufgebot.</p>';
+  if(!people){$('m').innerHTML=ORTE+'<h2>Zusatzpikett</h2><p class="msg">'+(store.get('wd-pin')?'Lade Zusatzpikett …':'Zum Anzeigen im Tab «Team» die Team-PIN eingeben.')+'</p>';if(store.get('wd-pin'))loadTeam(1);return}
   const rows=(pikett||[]).filter(r=>/Zusatzpikett/.test(r[1]));
   const days=[...new Set(rows.map(r=>r[0]))].sort();
   const fmt=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('de-CH',{weekday:'short',day:'numeric',month:'short'})};
   const tk=iso(pikettToday());
   const names=[...new Set(rows.map(r=>r[2]))];
-  $('m').innerHTML='<h2>Einsatzorte</h2><ul class="team"><li><div><b>Depots Tram</b><small>gemäss Anweisung BVB</small></div></li><li><div><b>Depots Bus</b><small>gemäss Anweisung BVB</small></div></li></ul><p class="sub" style="margin:8px 0 0">Wo genau eingesetzt wird, bestimmt die BVB beim Aufgebot.</p><h2>Zusatzpikett</h2>'
+  $('m').innerHTML=ORTE+'<h2>Zusatzpikett</h2>'
    +(days.length?`<p class="sub" style="margin:0 0 10px">Zusatzpikett vom ${esc(fmt(days[0]))} bis ${esc(fmt(days[days.length-1]))}, laut Pikettliste (Gruppe Weiss).</p>`:'')
    +(names.length?'<ul class="team">'+names.map(n=>{const p=telFor(n);return `<li><div><b>${esc(n)}</b></div>${p?`<a class="call" href="${esc(telHref(p.tel))}">Anrufen<span>${esc(p.tel)}</span></a>`:'<span class="miss">Nummer fehlt</span>'}</li>`}).join('')+'</ul>':'')
    +(days.length?'<h2>Tage</h2><ul class="plist">'+days.map(k=>`<li class="pday${k===tk?' now':''}"><div class="pdh"><b>${esc(fmt(k))}</b>${k===tk?'<span>heute</span>':''}</div><div class="pgr"><span>${rows.filter(r=>r[0]===k).map(r=>esc(r[2])+(r[3]!=='Pikett'?` <em>(${esc(r[3])})</em>`:'')).join(', ')}</span></div></li>`).join('')+'</ul>':'<p class="msg">In der Pikettliste ist kein Zusatzpikett eingetragen.</p>');
