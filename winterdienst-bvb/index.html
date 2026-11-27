@@ -48,6 +48,20 @@ li{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) 92px;
 .nobild{display:grid;place-items:center;width:92px;height:92px;border:1.5px dashed var(--line);border-radius:var(--r);color:var(--muted);font-size:12px;text-align:center;line-height:1.2;padding:6px}
 .note{margin-top:22px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
 .msg{padding:20px 0;color:var(--muted)}
+.team{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.team li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r)}
+.team b{display:block;font:600 19px/1.15 var(--f-display)}
+.team small{color:var(--muted);font-size:13px}
+.call{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 14px;border-radius:var(--r);background:var(--accent);color:#fff;font-weight:600;text-decoration:none;white-space:nowrap}
+.call span{display:block;font-weight:400;font-size:12px;opacity:.9}
+.call{flex-direction:column;line-height:1.15}
+.miss{color:var(--muted);font-size:13px;white-space:nowrap}
+.pinf{display:grid;gap:10px;max-width:320px;margin-top:10px}
+.pinf input{font:inherit;font-size:20px;letter-spacing:.2em;padding:11px 12px;border:1.5px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--fg);width:100%}
+.pinf button,.lnk{font:600 16px var(--f-body);min-height:46px;border:0;border-radius:var(--r);background:var(--steel);color:#fff;cursor:pointer}
+.lnk{background:none;color:var(--link);min-height:40px;padding:0;text-decoration:underline}
+.err{color:#b3261e;font-size:14px}
+.tab.tm .nr{background:var(--steel)}
 #v{position:fixed;inset:0;background:#000;color:#fff;display:none;flex-direction:column;z-index:10}
 #v.on{display:flex}
 .vt{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 10px}
@@ -69,7 +83,7 @@ li{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) 92px;
 <div class="wrap">
   <header>
     <img class="logo" src="logo.png" alt="H. Reich AG – Tiefbau, Strassenbau, Pflästerungen">
-    <div><h1>Winterdienst BVB</h1><div class="sub">Tramhaltestellen. Bild antippen für die grosse Ansicht mit Markierung.</div></div>
+    <div><h1>Winterdienst BVB</h1><div class="sub">Tramhaltestellen und Pikett-Telefonliste. Bild antippen für die grosse Ansicht.</div></div>
   </header>
   <div class="tabs" id="tabs" role="tablist"></div>
   <main id="m"><p class="msg">Lade Haltestellen …</p></main>
@@ -90,16 +104,17 @@ const mapsUrl=s=>G+encodeURIComponent(s.maps||(s.name+' '+(s.ort||'')));
 const img=f=>'img/'+encodeURIComponent(f);
 let L=[],line=null,cur=0,list=[];
 
-function pick(){const h=location.hash.replace('#linie-','');line=L.find(l=>l.nr===h)||L[0];render()}
+function pick(){if(location.hash==='#team'){line='team';render();return}const h=location.hash.replace('#linie-','');line=L.find(l=>l.nr===h)||L[0];render()}
 function render(){
-  $('tabs').innerHTML=L.map(l=>`<button class="tab" role="tab" aria-selected="${l===line}" data-nr="${esc(l.nr)}"><span class="nr" style="background:${esc(l.farbe||'#555')}">${esc(l.nr)}</span><span>Linie ${esc(l.nr)}<small>${esc(l.titel||'')}</small></span></button>`).join('');
+  $('tabs').innerHTML=L.map(l=>`<button class="tab" role="tab" aria-selected="${l===line}" data-nr="${esc(l.nr)}"><span class="nr" style="background:${esc(l.farbe||'#555')}">${esc(l.nr)}</span><span>Linie ${esc(l.nr)}<small>${esc(l.titel||'')}</small></span></button>`).join('')+`<button class="tab tm" role="tab" aria-selected="${line==='team'}" data-nr="team"><span class="nr" aria-hidden="true">☎</span><span>Team<small>Pikett &amp; Kontakte</small></span></button>`;
+  if(line==='team'){renderTeam();return}
   list=line.haltestellen||[];
   const orte=[...new Set(list.map(s=>s.ort||''))];
   $('m').style.setProperty('--lc',line.farbe||'#555');
   $('m').innerHTML=(list.length?orte.map(o=>`<h2>${esc(o)}</h2><ol>`+list.map((s,k)=>(s.ort||'')!==o?'':`<li><div class="dot"></div><div><div class="name">${esc(s.name)}</div><a class="maps" href="${esc(mapsUrl(s))}" target="_blank" rel="noopener">Google Maps ↗</a></div>${(s.bilder||[]).length?`<button class="thumb" data-k="${k}" aria-label="Bild ${esc(s.name)} anzeigen"><img src="${esc(img(s.bilder[0]))}" alt="" loading="lazy">${s.bilder.length>1?`<span>${s.bilder.length} Bilder</span>`:''}</button>`:'<div class="nobild">Noch kein Bild</div>'}</li>`).join('')+'</ol>').join(''):'<p class="msg">Für diese Linie sind noch keine Haltestellen erfasst.</p>')
    +(line.nr==='3'?'<p class="note">Nur jedes zweite Tram der Linie 3 fährt bis Gare de Saint-Louis, die übrigen wenden am Burgfelderhof.</p>':'');
 }
-$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){history.replaceState(null,'','#linie-'+b.dataset.nr);pick();window.scrollTo(0,0)}});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){history.replaceState(null,'',b.dataset.nr==='team'?'#team':'#linie-'+b.dataset.nr);pick();window.scrollTo(0,0)}});
 window.addEventListener('hashchange',pick);
 
 const v=$('v'),vs=$('vs');
@@ -120,6 +135,38 @@ $('vx').onclick=()=>{close();try{if(history.state&&history.state.v)history.back(
 window.addEventListener('popstate',close);
 $('vp').onclick=()=>step(-1);$('vnx').onclick=()=>step(1);
 document.addEventListener('keydown',e=>{if(!v.classList.contains('on'))return;if(e.key==='Escape')close();if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1)});
+
+// ---- Team / Telefonliste (Daten aus Google-Tabelle über Apps-Script, mit PIN) ----
+const EXEC="__EXEC__";
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+let people=null;
+function telHref(t){return 'tel:'+String(t).replace(/[^\d+]/g,'')}
+function pinForm(msg){
+  $('m').innerHTML=`<h2>Team &amp; Telefonnummern</h2><p class="sub">Die Nummern sind geschützt. Bitte die Team-PIN eingeben (einmalig auf diesem Handy).</p><form class="pinf" id="pf"><input id="pin" type="password" inputmode="numeric" autocomplete="off" aria-label="PIN">${msg?`<div class="err">${esc(msg)}</div>`:''}<button type="submit">Anzeigen</button></form>`;
+  $('pf').addEventListener('submit',e=>{e.preventDefault();const v=$('pin').value.trim();if(v){store.set('wd-pin',v);loadTeam()}});
+  setTimeout(()=>{try{$('pin').focus()}catch(e){}},50);
+}
+function renderTeam(){
+  if(!EXEC||EXEC.startsWith('__')){$('m').innerHTML='<h2>Team &amp; Telefonnummern</h2><p class="msg">Die Telefonliste ist noch nicht verbunden.</p>';return}
+  if(people)return showTeam();
+  if(!store.get('wd-pin'))return pinForm();
+  loadTeam();
+}
+async function loadTeam(){
+  $('m').innerHTML='<p class="msg">Lade Telefonliste …</p>';
+  try{
+    const r=await fetch(EXEC+'?pin='+encodeURIComponent(store.get('wd-pin')||'')+'&t='+Date.now(),{credentials:'omit'});
+    const d=await r.json();
+    if(!d.ok){if(d.error==='pin'){store.del('wd-pin');return pinForm('PIN falsch.')}throw new Error(d.error)}
+    people=d.people||[];if(line==='team')showTeam();
+  }catch(e){$('m').innerHTML='<p class="msg">Telefonliste konnte nicht geladen werden. Bitte Verbindung prüfen.</p><button class="lnk" id="rt">Nochmals versuchen</button>';$('rt').onclick=loadTeam}
+}
+function showTeam(){
+  const order=[...new Set(people.map(p=>p.typ||'Weitere'))].sort((a,b)=>(a==='Kontakt'?-1:b==='Kontakt'?1:0));
+  $('m').innerHTML=order.map(t=>`<h2>${esc(t==='Kontakt'?'Kontakte':t)}</h2><ul class="team">`+people.filter(p=>(p.typ||'Weitere')===t).map(p=>`<li><div><b>${esc(p.name)}</b>${p.funktion?`<small>${esc(p.funktion)}</small>`:''}</div>${p.tel?`<a class="call" href="${esc(telHref(p.tel))}">Anrufen<span>${esc(p.tel)}</span></a>`:'<span class="miss">Nummer fehlt</span>'}</li>`).join('')+'</ul>').join('')
+   +'<p class="note">Die Liste kommt aus der Google-Tabelle «Pikett Winterdienst – Telefonliste». Änderungen dort erscheinen hier beim nächsten Öffnen. <button class="lnk" id="lo">PIN auf diesem Handy löschen</button></p>';
+  $('lo').onclick=()=>{store.del('wd-pin');people=null;pinForm()};
+}
 
 fetch('haltestellen.json?t='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{L=d.linien||[];if(!L.length)throw 0;pick()}).catch(()=>{$('m').innerHTML='<p class="msg">Haltestellen konnten nicht geladen werden. Bitte Verbindung prüfen und neu laden.</p>'});
 }
