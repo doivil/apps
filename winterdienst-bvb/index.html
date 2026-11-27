@@ -162,9 +162,9 @@ async function loadTeam(){
   }catch(e){$('m').innerHTML='<p class="msg">Telefonliste konnte nicht geladen werden. Bitte Verbindung prüfen.</p><button class="lnk" id="rt">Nochmals versuchen</button>';$('rt').onclick=loadTeam}
 }
 function showTeam(){
-  const order=[...new Set(people.map(p=>p.typ||'Weitere'))].sort((a,b)=>(a==='Kontakt'?-1:b==='Kontakt'?1:0));
-  $('m').innerHTML=order.map(t=>`<h2>${esc(t==='Kontakt'?'Kontakte':t)}</h2><ul class="team">`+people.filter(p=>(p.typ||'Weitere')===t).map(p=>`<li><div><b>${esc(p.name)}</b>${p.funktion?`<small>${esc(p.funktion)}</small>`:''}</div>${p.tel?`<a class="call" href="${esc(telHref(p.tel))}">Anrufen<span>${esc(p.tel)}</span></a>`:'<span class="miss">Nummer fehlt</span>'}</li>`).join('')+'</ul>').join('')
-   +'<p class="note">Die Liste kommt aus der Google-Tabelle «Pikett Winterdienst – Telefonliste». Änderungen dort erscheinen hier beim nächsten Öffnen. <button class="lnk" id="lo">PIN auf diesem Handy löschen</button></p>';
+  const list=people.filter(p=>p.tel);
+  $('m').innerHTML='<h2>Team &amp; Telefonnummern</h2>'+(list.length?'<ul class="team">'+list.map(p=>`<li><div><b>${esc(p.name)}</b>${p.funktion?`<small>${esc(p.funktion)}</small>`:''}</div><a class="call" href="${esc(telHref(p.tel))}">Anrufen<span>${esc(p.tel)}</span></a></li>`).join('')+'</ul>':'<p class="msg">Noch keine Nummern erfasst.</p>')
+   +'<p class="note">Die Liste kommt aus der Google-Tabelle «Pikett Winterdienst – Telefonliste». Angezeigt werden alle mit Nummer. Änderungen dort erscheinen hier beim nächsten Öffnen. <button class="lnk" id="lo">PIN auf diesem Handy löschen</button></p>';
   $('lo').onclick=()=>{store.del('wd-pin');people=null;pinForm()};
 }
 
