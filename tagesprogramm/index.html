@@ -510,10 +510,29 @@ function render(){
   for(const g of visGroups()){
     const gr=el('div','row group');gr.appendChild(el('div','lab',`<div class="t">${esc(g.team)}</div>`));
     const gla=el('div','lane');gla.style.width=W+'px';laneBg(gla,w,true);
+    // Absenzen, die sich (samt Beschriftung) überschneiden, untereinander in eigene Spuren legen
+    const items=[];
     for(const a of g.abs){
       const [s,e,last]=span(a.start,a.days,a.off);if(e<0||s>DAYS)continue;
-      const ab=el('div','abs',`<span>${esc(a.label)}</span>`);ab.style.left=s*w+'px';ab.style.width=Math.max((e-s)*w,6)+'px';if((e-s)*w>a.label.length*6.3+16)ab.classList.add('in');ab.style.setProperty('--abs-c',absShade(g,a));
-      hover(ab,`<b>${esc(a.label)}</b><br>${fmtL(a.start)}${a.days>1?' – '+fmtL(last):''}${a.assumed?'<br>'+esc(a.assumed):''}`);
+      const bw=Math.max((e-s)*w,6),inside=(e-s)*w>a.label.length*6.3+16;
+      items.push({a,s,e,last,first:a.start});
+    }
+    // gleiche Person + gleicher Eintrag an aufeinanderfolgenden Arbeitstagen zu einem Block zusammenfassen
+    items.sort((p,q)=>(p.a.who||'').localeCompare(q.a.who||'')||p.s-q.s);
+    const merged=[];
+    for(const it of items){const pv=merged[merged.length-1];
+      if(pv&&(pv.a.who||'')===(it.a.who||'')&&pv.a.label===it.a.label&&it.s-pv.e<=2.01){pv.e=Math.max(pv.e,it.e);pv.last=it.last;pv.days=(pv.days||pv.a.days)+it.a.days}
+      else merged.push(it)}
+    for(const it of merged){it.bw=Math.max((it.e-it.s)*w,6);it.inside=(it.e-it.s)*w>it.a.label.length*6.3+16;it.x0=it.s*w;it.x1=it.x0+it.bw+(it.inside?0:it.a.label.length*6.3+18)}
+    merged.sort((p,q)=>p.x0-q.x0);const ends=[],pref={};
+    for(const it of merged){const who=it.a.who||'';let k=pref[who];
+      if(k==null||ends[k]>it.x0-4)k=ends.findIndex(x=>x<=it.x0-4);
+      if(k<0){k=ends.length;ends.push(0)}ends[k]=it.x1;it.lane=k;if(pref[who]==null)pref[who]=k}
+    const LH=24;if(ends.length>1)gr.style.height=(10+ends.length*LH)+'px';
+    for(const {a,s,last,bw,inside,lane,first,days} of merged){
+      const ab=el('div','abs',`<span>${esc(a.label)}</span>`);ab.style.left=s*w+'px';ab.style.width=bw+'px';if(inside)ab.classList.add('in');ab.style.setProperty('--abs-c',absShade(g,a));
+      if(ends.length>1)ab.style.top=(6+lane*LH)+'px';
+      hover(ab,`<b>${esc(a.label)}</b><br>${fmtL(first)}${+last!==+first?' – '+fmtL(last):''}${a.assumed?'<br>'+esc(a.assumed):''}`);
       gla.appendChild(ab)}
     gr.appendChild(gla);grid.appendChild(gr);
     for(const t of g.tasks.slice().sort((x,y)=>x.segs[0].start-y.segs[0].start)){
