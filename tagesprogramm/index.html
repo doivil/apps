@@ -107,8 +107,8 @@ button:focus-visible{outline:2px solid var(--bar);outline-offset:2px}
 .bar .in{overflow:hidden;text-overflow:ellipsis}
 .abs{position:absolute;top:7px;height:20px;border-radius:3px;z-index:1;background:repeating-linear-gradient(135deg,var(--absence) 0 3px,var(--absence-soft) 3px 6px);font:500 10.5px var(--f-body);color:var(--fg);display:flex;align-items:center;white-space:nowrap;box-sizing:border-box}
 .abs span{background:var(--group);padding:0 4px;margin-left:3px;border-radius:2px;line-height:15px}
-#grid .abs{background:var(--absence);border:0;color:var(--absence-fg);overflow:visible;min-width:6px}
-#grid .abs span{position:absolute;left:calc(100% + 4px);top:50%;transform:translateY(-50%);margin:0;background:var(--group);color:var(--absence-ink);font-weight:600;padding:0 4px;border-radius:2px;white-space:nowrap;z-index:2}
+#grid .abs{background:var(--abs-c,var(--absence));border:0;color:var(--absence-fg);overflow:visible;min-width:6px}
+#grid .abs span{position:absolute;left:calc(100% + 4px);top:50%;transform:translateY(-50%);margin:0;background:var(--group);color:var(--abs-c,var(--absence-ink));font-weight:600;padding:0 4px;border-radius:2px;white-space:nowrap;z-index:2}
 #grid .abs.in span{position:static;transform:none;background:none;color:var(--absence-fg);margin-left:3px}
 .ms{position:absolute;top:10px;width:10px;height:10px;background:var(--milestone);transform:rotate(45deg);z-index:2;border:1px solid var(--surface)}
 .tip{position:fixed;z-index:20;background:var(--fg);color:var(--bg);font:12px/1.45 var(--f-body);padding:8px 10px;border-radius:4px;max-width:320px;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.25)}
@@ -149,7 +149,7 @@ tr:last-child td{border-bottom:none}
 .lgroup>h3{margin:0;padding:10px 14px;background:var(--grp-bg);color:var(--grp-fg);font:600 19px var(--f-display);letter-spacing:.03em;text-transform:uppercase;border-radius:0 5px 0 0;display:flex;justify-content:space-between;align-items:baseline;gap:10px;position:sticky;top:env(safe-area-inset-top,0px);z-index:4}
 .lgroup>h3 small{font:500 12px var(--f-body);letter-spacing:0;text-transform:none;opacity:.75;white-space:nowrap}
 .labs{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px 2px}
-.labs span{font:500 12px var(--f-body);background:var(--absence-soft);color:var(--absence-ink);border-left:3px solid var(--absence);border-radius:3px;padding:2px 7px}
+.labs span{font:500 12px var(--f-body);background:var(--absence-soft);color:var(--absence-ink);border-left:5px solid var(--abs-c,var(--absence));border-radius:3px;padding:2px 7px}
 .litem{display:grid;grid-template-columns:118px 1fr auto;gap:4px 14px;padding:10px 14px;border-bottom:1px solid var(--line);align-items:start}
 .litem:last-child{border-bottom:0}
 .litem .d{font:500 12.5px var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -365,15 +365,26 @@ function parseTask(team,r){
 
 /* Absenzen: «Veli: frei 15.+16.10, ZS 28.10.-29.10.   Tiago: 03.11. ganzer Tag , M1 Kurs 16.-18.11.» */
 const NOT_NAMES=/^(ferien|frei|zs|m1|kurs|op|schule|krank|unfall|militär|ganzer|nachmittag|vormittag)$/i;
+// Text in Abschnitte pro Person teilen: bei 2+ Leerzeichen, Zeilenumbruch oder vor «Name:» / «Name frei»;
+// Teile ohne Namen am Anfang gehören zum vorherigen Abschnitt.
+function absChunks(text){
+  const raw=String(text||'').split(/\n|\s{2,}|,\s*(?=[A-ZÄÖÜ][\wäöüéè]+\s*(?::|\s+frei\b))|\s+(?=[A-ZÄÖÜ][\wäöüéè]+\s*:)/);
+  const out=[];
+  for(let p of raw){p=p.trim().replace(/^,+|,+$/g,'').trim();if(!p)continue;
+    const w=(p.match(/^([A-ZÄÖÜ][\wäöüéè]+)/)||[])[1];
+    if(out.length&&(!w||NOT_NAMES.test(w)))out[out.length-1]+=', '+p;else out.push(p)}
+  return out;
+}
 function parseAbsences(text){
-  const out=[];text=String(text||'').replace(/\n/g,'   ');
-  for(const chunk of text.split(/\s{3,}/)){
+  const out=[];
+  for(const chunk of absChunks(text)){
     let c=chunk.trim();if(!c)continue;
     let name='';
     let m=c.match(/^([A-ZÄÖÜ][\wäöüéè]+)\s*:\s*(.*)$/);
     if(m&&!NOT_NAMES.test(m[1])){name=m[1];c=m[2]}
     else if(m&&NOT_NAMES.test(m[1])){c=m[1]+' '+m[2]}
     if(!name){m=c.match(/^([A-ZÄÖÜ][\wäöüéè]+)\s+(.*)$/);if(m&&!NOT_NAMES.test(m[1])){name=m[1];c=m[2]}}
+    const n0=out.length;
     for(let part of c.split(/,(?![^()]*\))/)){
       part=part.trim();if(!part)continue;
       const half=/nachmittag|\bNM\b/i.test(part);
@@ -397,6 +408,7 @@ function parseAbsences(text){
         out.push(half?{start:a,days:.5,off:.5,label:label+' (NM)'}:{start:a,days:1,off:0,label});
       }
     }
+    for(let k=n0;k<out.length;k++)out[k].who=name||'';
   }
   return out;
 }
@@ -451,6 +463,11 @@ function spanPieces(start,tg,off=0){
   return out;
 }
 function el(t,c,h){const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
+// Blautöne für Absenzen: pro Person in einer Equipe ein eigener Ton
+const ABS_SHADES=['#2563c9','#0b2f6b','#0a85c2','#5b5fd6','#3d8fe0','#123f99'];
+const ABS_SHADES_DARK=['#4f8be0','#93b9f0','#38b6e8','#8b8ff0','#2e6fc4','#6aa2ff'];
+function absShade(g,a){const dark=matchMedia('(prefers-color-scheme: dark)').matches&&document.documentElement.dataset.theme!=='light'||document.documentElement.dataset.theme==='dark';
+  const who=[...new Set(g.abs.map(x=>x.who||''))];const i=Math.max(0,who.indexOf(a.who||''));return (dark?ABS_SHADES_DARK:ABS_SHADES)[i%6]}
 const isHol=(dt)=>CLOSED_R.some(([a,b])=>dt>=a&&dt<=b);
 function laneBg(lane,w,label){
   const bg=el('div','bg');
@@ -495,7 +512,7 @@ function render(){
     const gla=el('div','lane');gla.style.width=W+'px';laneBg(gla,w,true);
     for(const a of g.abs){
       const [s,e,last]=span(a.start,a.days,a.off);if(e<0||s>DAYS)continue;
-      const ab=el('div','abs',`<span>${esc(a.label)}</span>`);ab.style.left=s*w+'px';ab.style.width=Math.max((e-s)*w,6)+'px';if((e-s)*w>a.label.length*6.3+16)ab.classList.add('in');
+      const ab=el('div','abs',`<span>${esc(a.label)}</span>`);ab.style.left=s*w+'px';ab.style.width=Math.max((e-s)*w,6)+'px';if((e-s)*w>a.label.length*6.3+16)ab.classList.add('in');ab.style.setProperty('--abs-c',absShade(g,a));
       hover(ab,`<b>${esc(a.label)}</b><br>${fmtL(a.start)}${a.days>1?' – '+fmtL(last):''}${a.assumed?'<br>'+esc(a.assumed):''}`);
       gla.appendChild(ab)}
     gr.appendChild(gla);grid.appendChild(gr);
@@ -569,7 +586,7 @@ function renderList(){
   for(const g of visGroups()){
     const box=el('div','lgroup');{const n=g.tasks.filter(t=>t.end>=addD(TODAY,-7)).length;box.appendChild(el('h3','',`<span>${esc(g.team)}</span><small>${n} ${n===1?'Einsatz':'Einsätze'}</small>`))}
     const abs=g.abs.map(a=>{const [,,last]=span(a.start,a.days,a.off);return {a,last}}).filter(x=>x.last>=TODAY).sort((x,y)=>x.a.start-y.a.start);
-    if(abs.length){const d=el('div','labs');for(const {a,last} of abs)d.appendChild(el('span','',`${esc(a.label.replace(/[:\s]+$/,''))} · ${fmt(a.start)}${+last!==+a.start?'–'+fmt(last):''}`));box.appendChild(d)}
+    if(abs.length){const d=el('div','labs');for(const {a,last} of abs){const sp=el('span','',`${esc(a.label.replace(/[:\s]+$/,''))} · ${fmt(a.start)}${+last!==+a.start?'–'+fmt(last):''}`);sp.style.setProperty('--abs-c',absShade(g,a));d.appendChild(sp)}box.appendChild(d)}
     const ts=g.tasks.filter(t=>t.end>=lim).sort((x,y)=>x.segs[0].start-y.segs[0].start);
     if(!ts.length)box.appendChild(el('div','empty','Keine Einsätze ab letzter Woche.'));
     for(const t of ts){
