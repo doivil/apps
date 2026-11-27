@@ -72,6 +72,8 @@ li{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) 92px;
 .tab.tm .nr{background:var(--steel)}
 .tab.ab .nr{background:var(--accent)}
 .tab.al .nr{background:#2e7d4f}
+.tab.ex .nr{background:#1d4f91;font-size:13px;white-space:nowrap}
+.auf.ext{border-left:5px solid #1d4f91}
 .steps.let .n{background:#2e7d4f}
 .tab.pk .nr{background:#6b4fa0}
 .pnav{display:grid;grid-template-columns:48px minmax(0,1fr) 48px;gap:8px;align-items:center;margin:4px 0 6px}
@@ -93,6 +95,17 @@ li{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) 92px;
 .ptab td.on{background:#6b4fa0;color:#fff;font-size:10px}
 .ptab td.nt{background:#fde2e0;color:#b3261e;font-weight:700;cursor:pointer}
 .ptab .td{outline:2px solid #e2231a;outline-offset:-2px}
+.aa{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.aa li{display:grid;grid-template-columns:46px minmax(0,1fr);gap:12px;padding:12px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);align-items:start}
+.aa .bx{display:grid;place-items:center;width:44px;height:44px;border-radius:var(--r);background:#1d4f91;color:#fff;font:700 26px/1 var(--f-display)}
+.aa b{display:block;font:600 20px/1.15 var(--f-display)}
+.aa ul{margin:6px 0 8px;padding-left:18px;font-size:14px;color:var(--muted)}
+.aa .open{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border:0;border-radius:var(--r);background:#1d4f91;color:#fff;font:600 15px var(--f-body);cursor:pointer}
+#pv{position:fixed;inset:0;background:#2b2f33;color:#fff;display:none;flex-direction:column;z-index:11}
+#pv.on{display:flex}
+#pv .pvs{flex:1;overflow:auto;padding:8px;touch-action:pan-x pan-y pinch-zoom}
+#pv canvas{display:block;width:100%;height:auto;margin:0 auto 10px;background:#fff;box-shadow:0 2px 8px rgb(0 0 0/.4)}
+#pv .msg{color:#ddd;text-align:center;padding:40px 10px}
 .plist{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .pday{display:block;text-align:left;padding:10px 12px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);cursor:pointer}
 .pday.now{border-color:#6b4fa0;box-shadow:inset 4px 0 0 #6b4fa0}
@@ -138,6 +151,8 @@ li{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) 92px;
   <main id="m"><p class="msg">Lade Haltestellen …</p></main>
 </div>
 
+<div id="pv" role="dialog" aria-modal="true" aria-label="Arbeitsauftrag"><div class="vt"><div style="flex:1"><b id="pvn"></b><br><small id="pvo"></small></div><button class="x" id="pvx" aria-label="Schliessen">×</button></div><div class="pvs" id="pvs"></div></div>
+
 <div id="v" role="dialog" aria-modal="true" aria-label="Bild der Haltestelle">
   <div class="vt"><div style="flex:1"><b id="vn"></b><br><small id="vo"></small></div><button class="x" id="vx" aria-label="Schliessen">×</button></div>
   <div class="strip" id="vs"></div>
@@ -153,25 +168,27 @@ const mapsUrl=s=>G+encodeURIComponent(s.maps||(s.name+' '+(s.ort||'')));
 const img=f=>'img/'+encodeURIComponent(f);
 let L=[],line=null,cur=0,list=[];
 
-function pick(){const hs=location.hash;if(hs==='#team'||hs==='#ablauf'||hs==='#ablauf-letten'||hs==='#pikett'||!hs){line=hs?hs.slice(1):'ablauf';render();return}const h=hs.replace('#linie-','');line=L.find(l=>l.nr===h)||L[0];render()}
+function pick(){const hs=location.hash;if(hs==='#team'||hs==='#ablauf'||hs==='#ablauf-letten'||hs==='#extern'||hs==='#pikett'||!hs){line=hs?hs.slice(1):'ablauf';render();return}const h=hs.replace('#linie-','');line=L.find(l=>l.nr===h)||L[0];render()}
 function render(){
   const T=(nr,cls,sel,icon,ttl,sub,style)=>`<button class="tab ${cls}" role="tab" aria-selected="${sel}" data-nr="${esc(nr)}"><span class="nr" ${style||''} aria-hidden="true">${icon}</span><span>${ttl}<small>${sub}</small></span></button>`;
-  const LT=l=>T(l.nr,'',l===line,esc(l.nr),esc(l.name||('Linie '+l.nr)),esc(l.titel||''),`style="background:${esc(l.farbe||'#555')}"`);
+  const LT=l=>T(l.nr,'',l===line,esc(l.nr),esc(l.name||l.titel||''),esc(l.name?(l.titel||''):('Linie '+l.nr)),`style="background:${esc(l.farbe||'#555')}"`);
   const grp=(t,c,inner)=>inner?`<section class="auf ${c}"><h3>${t}</h3><div class="tabs" role="tablist">${inner}</div></section>`:'';
   $('tabs').innerHTML=grp('Auftrag BVB · Tramhaltestellen','bvb',T('ablauf','ab',line==='ablauf','!','Ablauf','Meldungen im Einsatz')+L.filter(l=>(l.auftrag||'BVB')==='BVB').map(LT).join(''))
    +grp('Auftrag Areal Letten Allschwil','let',T('ablauf-letten','al',line==='ablauf-letten','!','Ablauf Letten','Reihenfolge im Einsatz')+L.filter(l=>l.auftrag==='Letten').map(LT).join(''))
-   +grp('Für beide Aufträge','all',T('team','tm',line==='team','☎','Team','Pikett &amp; Kontakte')+T('pikett','pk',line==='pikett','P','Pikettliste','Wer hat Pikett'));
+   +grp('Auftrag BVB · Schneebekämpfung Extern (&gt; 10 cm)','ext',T('extern','ex',line==='extern','A–E','Arbeitsaufträge','Reich · Bertschmann · Weber'))
+   +grp('Für alle Aufträge','all',T('team','tm',line==='team','☎','Team','Pikett &amp; Kontakte')+T('pikett','pk',line==='pikett','P','Pikettliste','Wer hat Pikett'));
   if(line==='team'){renderTeam();return}
   if(line==='ablauf'){renderAblauf();return}
   if(line==='ablauf-letten'){renderAblaufLetten();return}
   if(line==='pikett'){renderPikett();return}
+  if(line==='extern'){renderExtern();return}
   list=line.haltestellen||[];
   const orte=[...new Set(list.map(s=>s.ort||''))];
   $('m').style.setProperty('--lc',line.farbe||'#555');
   $('m').innerHTML=(list.length?orte.map(o=>`<h2>${esc(o)}</h2><ol>`+list.map((s,k)=>(s.ort||'')!==o?'':`<li><div class="dot"></div><div><div class="name">${esc(s.name)}</div>${s.info?`<div class="sub">${esc(s.info)}</div>`:''}<a class="maps" href="${esc(mapsUrl(s))}" target="_blank" rel="noopener">Google Maps ↗</a></div>${(s.bilder||[]).length?`<button class="thumb" data-k="${k}" aria-label="Bild ${esc(s.name)} anzeigen"><img src="${esc(img(s.bilder[0]))}" alt="" loading="lazy">${s.bilder.length>1?`<span>${s.bilder.length} Bilder</span>`:''}</button>`:'<div class="nobild">Noch kein Bild</div>'}</li>`).join('')+'</ol>').join(''):'<p class="msg">Für diese Linie sind noch keine Haltestellen erfasst.</p>')
 ;
 }
-$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){history.replaceState(null,'',['team','ablauf','ablauf-letten','pikett'].includes(b.dataset.nr)?'#'+b.dataset.nr:'#linie-'+b.dataset.nr);pick();window.scrollTo(0,0)}});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){history.replaceState(null,'',['team','ablauf','ablauf-letten','extern','pikett'].includes(b.dataset.nr)?'#'+b.dataset.nr:'#linie-'+b.dataset.nr);pick();window.scrollTo(0,0)}});
 window.addEventListener('hashchange',pick);
 
 const v=$('v'),vs=$('vs');
@@ -225,6 +242,48 @@ function showTeam(){
    +'<p class="note"><button class="lnk" id="lo">PIN auf diesem Handy löschen</button></p>';
   $('lo').onclick=()=>{store.del('wd-pin');people=null;pinForm()};
 }
+
+// ---- Arbeitsaufträge BVB Schneebekämpfung Extern A–E (PDF aus Google Drive über das Apps-Script, mit PIN) ----
+const EXT=[
+ {b:'A',firma:'Reich AG',r:['Dreirosenbrücke – Bahnhof SBB, Linie 1 (Prio 1)','Aeschenplatz – Zeughaus, Linie 14 (Prio 1)','Bankverein – Heuwaage, Linie 10 (Prio 2)','Heuwaage – IWB, Linie 2 (Prio 3)','St. Alban-Tor – Birsfelden Hard, Linie 3 (Prio 3)']},
+ {b:'B',firma:'Reich AG',r:['Tramdepot Allschwilerstrasse (Prio 1)','Morgartenring – Brausebad, Linie 6 (Prio 1)','Aeschenplatz – Bahnhof SBB, Linien 8, 10, 11','Aeschenplatz – Schifflände – Ciba (Prio 1)']},
+ {b:'C',firma:'Bertschmann AG',r:['Tramdepot Dreispitz (Prio 1)','Trassen Münchensteinerbrücke (Prio 1)','Bahnhof SBB – Bad. Bahnhof, Linie 2 (Prio 1)','Eglisee – Riehen Grenze, Linie 2 (Prio 2)','Kleinhüningen – Weil Grenze – Ciba, Linie 8 (Prio 2)']},
+ {b:'D',firma:'Weber Forstdienst',r:['Tramdepot Wiesenplatz (Prio 1)','Saint-Louis Grenze – Schifflände, Linie 11 (Prio 3)','Barfüsserplatz – Burgfelderhof, Linie 3 (Prio 3)','Brausebad – Heuwaage, Linie 6 (Prio 3)']},
+ {b:'E',firma:'Weber Forstdienst',r:['Busprovisorium Klybeck (Prio 1)','Hauptwerkstätte Klybeck (Prio 2)','Morgartenring – Allschwil, Linie 6 (Prio 2)']}
+];
+function renderExtern(){
+  const firmen=[...new Set(EXT.map(x=>x.firma))];
+  $('m').innerHTML='<h2>Arbeitsaufträge Schneebekämpfung Extern</h2>'+firmen.map(f=>`<h2>${esc(f)}</h2><ul class="aa">`+EXT.filter(x=>x.firma===f).map(x=>`<li><span class="bx">${x.b}</span><div><b>Arbeitsauftrag ${x.b}</b><ul>${x.r.map(r=>`<li style="display:list-item;padding:0;border:0;background:none">${esc(r)}</li>`).join('')}</ul><button class="open" data-b="${x.b}">Plan öffnen</button></div></li>`).join('')+'</ul>').join('');
+}
+let pdfLib=null;
+function loadPdfLib(){if(pdfLib)return pdfLib;pdfLib=new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';s.onload=()=>{window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';ok(window.pdfjsLib)};s.onerror=()=>{pdfLib=null;no(new Error('lib'))};document.head.appendChild(s)});return pdfLib}
+const pdfCache={};
+async function openAuftrag(b){
+  const pv=$('pv'),ps=$('pvs');const x=EXT.find(e=>e.b===b);
+  $('pvn').textContent='Arbeitsauftrag '+b;$('pvo').textContent=x?x.firma:'';
+  ps.innerHTML='<p class="msg">Plan wird geladen …</p>';pv.classList.add('on');document.body.style.overflow='hidden';
+  try{history.pushState({pv:1},'')}catch(e){}
+  if(!store.get('wd-pin')){ps.innerHTML='<p class="msg">Bitte zuerst im Tab «Team» die Team-PIN eingeben.</p>';return}
+  try{
+    let d=pdfCache[b];
+    if(!d){const r=await fetch(EXEC+'?pin='+encodeURIComponent(store.get('wd-pin'))+'&auftrag='+b+'&t='+Date.now(),{credentials:'omit'});d=await r.json();if(!d.ok)throw new Error(d.error||'fehler');pdfCache[b]=d}
+    const lib=await loadPdfLib();
+    const bin=atob(d.data),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+    const doc=await lib.getDocument({data:bytes}).promise;
+    if(!pv.classList.contains('on'))return;
+    ps.innerHTML='';const W=Math.min(ps.clientWidth-16,1100),dpr=Math.min(window.devicePixelRatio||1,2);
+    for(let n=1;n<=doc.numPages;n++){
+      const pg=await doc.getPage(n);const v0=pg.getViewport({scale:1});const vp=pg.getViewport({scale:W/v0.width*dpr*1.5});
+      const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;ps.appendChild(c);
+      await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
+      if(!pv.classList.contains('on'))return;
+    }
+  }catch(e){ps.innerHTML='<p class="msg">'+(String(e.message)==='pin'?'PIN falsch. Bitte im Tab «Team» neu eingeben.':'Plan konnte nicht geladen werden. Bitte Verbindung prüfen.')+'</p>'}
+}
+function closeAuftrag(){$('pv').classList.remove('on');document.body.style.overflow=''}
+$('m').addEventListener('click',e=>{const b=e.target.closest('.open');if(b)openAuftrag(b.dataset.b)});
+$('pvx').onclick=()=>{closeAuftrag();try{if(history.state&&history.state.pv)history.back()}catch(e){}};
+window.addEventListener('popstate',closeAuftrag);
 
 // ---- Pikettliste (Daten nur über das Apps-Script, mit PIN) ----
 let pDay=null;
@@ -309,7 +368,8 @@ const AB=[
  {t:'Im Magazin eingetroffen: Beginn melden',d:'Bei der BVB Leitstelle den Einsatzbeginn melden: einmal den Start Frankreich und einmal den Start Baselland. Immer melden! Beginn auch im Gruppenchat melden.',c:['leitstelle'],key:1},
  {t:'Abmeldung Frankreich bei erster Haltestelle in Birsfelden',d:'Wenn Frankreich fertig ist: bei der ersten Haltestelle in Birsfelden die Leitstelle anrufen und Frankreich abmelden. Abmeldung auch im Gruppenchat melden.',c:['leitstelle'],key:1},
  {t:'Birsfelden fertig: andere Gruppe fragen',d:'Wenn Birsfelden fertig ist, bei der anderen Gruppe (Allschwil) nachfragen und eventuell helfen.'},
- {t:'Zurück im Magazin: Abmeldung Baselland',d:'Immer Fernando meldet den Einsatz Baselland bei der Leitstelle ab. Abmeldung auch im Gruppenchat melden.',c:['leitstelle'],key:1}
+ {t:'Zurück im Magazin: Abmeldung Baselland',d:'Immer Fernando meldet den Einsatz Baselland bei der Leitstelle ab. Abmeldung auch im Gruppenchat melden.',c:['leitstelle'],key:1},
+ {t:'Stundenrapport',d:'Die Stundenrapportierung wie gewohnt machen.'}
 ];
 function findP(k){return (people||[]).find(p=>p.tel&&p.name.toLowerCase().includes(k))}
 
@@ -319,7 +379,8 @@ const ABL=[
  {t:'Trottoir',d:'Danach das Trottoir salzen und räumen.'},
  {t:'Parkplatz Coop',d:'Danach den Parkplatz Coop salzen und räumen.'},
  {t:'Ärztehaus',d:'Danach das Ärztehaus salzen und räumen.'},
- {t:'Alles andere im Areal',d:'Zum Schluss alle übrigen Flächen im Areal gemäss Plan (Areal Coop).'}
+ {t:'Alles andere im Areal',d:'Zum Schluss alle übrigen Flächen im Areal gemäss Plan (Areal Coop).'},
+ {t:'Stundenrapport',d:'Die Stundenrapportierung wie gewohnt machen.'}
 ];
 function renderAblaufLetten(){
   $('m').innerHTML='<h2>Ablauf Einsatz Areal Letten</h2><ol class="steps let">'+ABL.map((s,i)=>`<li${s.key?' class="key"':''}><span class="n">${i+1}</span><div><b>${esc(s.t)}</b><p>${esc(s.d)}</p></div></li>`).join('')+'</ol>';
