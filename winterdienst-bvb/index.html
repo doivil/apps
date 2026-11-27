@@ -79,8 +79,8 @@ li{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) 92px;
 .pdh{display:flex;gap:8px;align-items:baseline;margin-bottom:4px}
 .pdh b{font:700 19px/1.1 var(--f-display)}
 .pdh span{font-size:12px;font-weight:600;color:#fff;background:#6b4fa0;border-radius:8px;padding:1px 7px}
-.pgr{display:grid;grid-template-columns:64px minmax(0,1fr);gap:8px;font-size:14px;line-height:1.35;padding:2px 0}
-.pgl{font-weight:600;color:var(--muted)}
+.pgr{display:grid;grid-template-columns:minmax(0,1fr);gap:0;font-size:14px;line-height:1.35;padding:2px 0}
+.pgl{font-weight:600;color:var(--muted);font-size:12px}
 .pgr em{font-style:normal;color:#b3261e;font-size:12px}
 .team .st{display:block;font-size:13px;font-weight:600;color:#b3261e}
 .steps{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:s}
@@ -206,7 +206,7 @@ const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+Stri
 function pikettToday(){const n=new Date();if(n.getHours()<6)n.setDate(n.getDate()-1);return n}
 function telFor(name){const t=name.toLowerCase().replace(/[()]/g,'').split(/\s+/).filter(x=>x.length>2);return (people||[]).find(p=>p.tel&&t.every(w=>p.name.toLowerCase().includes(w)))}
 let pMode='list',pStart=null;
-const SHORT=g=>g==='Einsatzleitung'?'Leitung':g==='Ersatzpersonal'?'Ersatz':g.replace(/^Gruppe (\S+).*$/,'$1');
+const SHORT=g=>g.replace(/^Gruppe \S+ · /,'');
 function renderPikett(){
   if(!EXEC||EXEC.startsWith('__')){$('m').innerHTML='<p class="msg">Die Pikettliste ist noch nicht verbunden.</p>';return}
   if(!people){if(!store.get('wd-pin'))return pinForm();return loadTeam()}
@@ -218,7 +218,7 @@ function renderPikett(){
     const d=new Date(pStart);d.setDate(d.getDate()+i);const k=iso(d),rows=pikett.filter(r=>r[0]===k);
     const gs=[...new Set(rows.map(r=>r[1]))];
     html+=`<li class="pday${k===tk?' now':''}" data-d="${k}"><div class="pdh"><b>${esc(d.toLocaleDateString('de-CH',{weekday:'short',day:'numeric',month:'short'}))}</b>${k===tk?'<span>heute</span>':''}</div>`
-      +(rows.length?gs.map(g=>`<div class="pgr"><span class="pgl">${esc(SHORT(g))}</span><span>${rows.filter(r=>r[1]===g).map(r=>esc(r[2])+(r[3]!=='Pikett'?` <em>(${esc(r[3])})</em>`:'')).join(', ')}</span></div>`).join(''):'<div class="pgr"><span></span><span>Kein Pikett eingetragen</span></div>')+'</li>';
+      +(rows.length?gs.map(g=>`<div class="pgr"><span class="pgl">${esc(SHORT(g))}</span><span>${rows.filter(r=>r[1]===g).map(r=>esc(r[2])+(r[3]!=='Pikett'?` <em>(${esc(r[3])})</em>`:'')).join(', ')}</span></div>`).join(''):'<div class="pgr"><span>Kein Pikett eingetragen</span></div>')+'</li>';
   }
   const e=new Date(pStart);e.setDate(e.getDate()+N-1);
   $('m').innerHTML=`<h2>Pikett</h2><div class="pnav"><button id="pp" aria-label="Frühere Tage">‹</button><div><b>${esc(pStart.toLocaleDateString('de-CH',{day:'numeric',month:'short'}))} – ${esc(e.toLocaleDateString('de-CH',{day:'numeric',month:'short',year:'numeric'}))}</b><small>Tag antippen für Details</small></div><button id="pn" aria-label="Spätere Tage">›</button></div>${iso(pStart)===tk?'':'<button class="today" id="pt">Zu heute</button>'}<ul class="plist">${html}</ul>`;
@@ -236,7 +236,7 @@ function renderPikettDay(){
   const isToday=key===iso(pikettToday());
   const groups=[...new Set(rows.map(r=>r[1]))];
   $('m').innerHTML=`<button class="today" id="pb" style="margin:0">‹ Übersicht</button><div class="pnav"><button id="pp" aria-label="Vorheriger Tag">‹</button><div><b>${esc(wd)}</b>${isToday?'<small>heute</small>':''}</div><button id="pn" aria-label="Nächster Tag">›</button></div>${isToday?'':'<button class="today" id="pt">Zu heute</button>'}`
-   +(rows.length?groups.map(g=>`<h2>${esc(g)}</h2><ul class="team">`+rows.filter(r=>r[1]===g).map(r=>{const p=telFor(r[2]);return `<li><div><b>${esc(r[2])}</b>${r[3]!=='Pikett'?`<span class="st">${esc(r[3])}</span>`:''}</div>${p&&r[3]==='Pikett'?`<a class="call" href="${esc(telHref(p.tel))}">Anrufen<span>${esc(p.tel)}</span></a>`:''}</li>`}).join('')+'</ul>').join(''):'<p class="msg">Für diesen Tag ist kein Pikett eingetragen.</p>');
+   +(rows.length?groups.map(g=>`<h2>${esc(SHORT(g))}</h2><ul class="team">`+rows.filter(r=>r[1]===g).map(r=>{const p=telFor(r[2]);return `<li><div><b>${esc(r[2])}</b>${r[3]!=='Pikett'?`<span class="st">${esc(r[3])}</span>`:''}</div>${p&&r[3]==='Pikett'?`<a class="call" href="${esc(telHref(p.tel))}">Anrufen<span>${esc(p.tel)}</span></a>`:''}</li>`}).join('')+'</ul>').join(''):'<p class="msg">Für diesen Tag ist kein Pikett eingetragen.</p>');
   $('pp').onclick=()=>{pDay.setDate(pDay.getDate()-1);renderPikettDay()};
   $('pn').onclick=()=>{pDay.setDate(pDay.getDate()+1);renderPikettDay()};
   $('pb').onclick=()=>{pMode='list';renderPikett()};
