@@ -304,7 +304,8 @@ function renderFeiertage(){
   const days=[...new Set(rows.map(r=>r[0]))].sort();
   const fmt=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('de-CH',{weekday:'short',day:'numeric',month:'short'})};
   const tk=iso(pikettToday());
-  const names=[...new Set(rows.map(r=>r[2]))];
+  const ZUSATZ_FIX=['Lüthi Kevin']; // fest im Zusatzpikett, auch wenn nicht in der Pikettliste eingetragen
+  const names=[...new Set(rows.map(r=>r[2]).concat(ZUSATZ_FIX))];
   $('m').innerHTML=ORTE+'<h2>Zusatzpikett</h2>'
    +(days.length?`<p class="sub" style="margin:0 0 10px">Zusatzpikett vom ${esc(fmt(days[0]))} bis ${esc(fmt(days[days.length-1]))}, laut Pikettliste (Gruppe Weiss).</p>`:'')
    +(names.length?'<ul class="team">'+names.map(n=>{const p=telFor(n);return `<li><div><b>${esc(n)}</b></div>${p?`<a class="call" href="${esc(telHref(p.tel))}">Anrufen<span>${esc(p.tel)}</span></a>`:'<span class="miss">Nummer fehlt</span>'}</li>`}).join('')+'</ul>':'')
