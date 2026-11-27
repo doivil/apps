@@ -20,6 +20,6 @@ Die Haltestellen stehen in `winterdienst-bvb/haltestellen.json`, nach Linien geo
    Ohne Bild: `"bilder": []`. Mehrere Bilder: `["a.jpg", "b.jpg"]`.
 3. «Commit changes». Nach etwa einer Minute ist die App aktualisiert.
 
-Eine neue Linie ist ein weiterer Block unter `linien` mit `nr`, `titel`, `farbe` und `haltestellen`.
+Eine neue Linie ist ein weiterer Block unter `linien` mit `nr`, `titel`, `farbe` und `haltestellen`. Für ein Winterdienst-Objekt statt einer Tramlinie zusätzlich `name` setzen (z.B. "Areal Coop"); bei einem Eintrag zeigt `info` einen kurzen Text unter dem Namen.
 
 Die Telefonliste im Tab «Team» liest die Google-Tabelle «Pikett Winterdienst – Telefonliste» über ein Google-Apps-Script (`winterdienst-bvb/apps-script.gs`), nur lesend und nur mit der Team-PIN. Die Nummern und die PIN stehen nicht auf GitHub.

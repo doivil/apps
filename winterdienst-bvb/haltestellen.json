@@ -158,6 +158,23 @@
      ]
     }
    ]
+  },
+  {
+   "nr": "A",
+   "name": "Areal Coop",
+   "titel": "Allschwil Letten",
+   "farbe": "#2e7d4f",
+   "haltestellen": [
+    {
+     "name": "Areal Coop Allschwil Letten Center",
+     "ort": "Allschwil",
+     "maps": "Coop Supermarkt Allschwil Letten Center",
+     "bilder": [
+      "areal-coop.jpg"
+     ],
+     "info": "Rapport Ärztehaus, Rapport Coop, Rapport Würth. Gelb = salzen und räumen. Zufahrt Coop erledigt bis 05.00 Uhr."
+    }
+   ]
   }
  ]
 }
