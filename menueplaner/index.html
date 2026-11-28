@@ -141,6 +141,13 @@
   <div class="grid">
     <section class="panel" id="planPanel">
       <h2>Menüvorschläge <small id="syncState"></small></h2>
+      <div class="home">
+        <div class="home-head"><b>🏠 Zu Hause</b>
+          <label class="btn" for="photoInput">📷 Kühlschrank fotografieren</label>
+          <input type="file" id="photoInput" class="vh" accept="image/*" multiple></div>
+        <div id="homeReview"></div>
+        <div id="homeList"></div>
+      </div>
       <div id="days"></div>
       <div class="ideas">
         <div class="ideas-head"><b>💡 Keine Idee?</b>
@@ -152,13 +159,6 @@
     </section>
     <section class="panel" id="listPanel">
       <h2>Einkaufsliste <small id="listCount"></small></h2>
-      <div class="home">
-        <div class="home-head"><b>🏠 Zu Hause</b>
-          <label class="btn" for="photoInput">📷 Kühlschrank fotografieren</label>
-          <input type="file" id="photoInput" class="vh" accept="image/*" multiple></div>
-        <div id="homeReview"></div>
-        <div id="homeList"></div>
-      </div>
       <div class="progress"><i id="prog" style="width:0"></i></div>
       <div class="actions">
         <button class="btn" id="saveDrive">In Drive speichern</button>
