@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menüplaner OTW70</title>
+<meta name="theme-color" content="#c8502c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Menüplaner">
+<link rel="apple-touch-icon" href="icon-180.png?v=1">
+<link rel="icon" type="image/png" href="icon-192.png?v=1">
+<link rel="manifest" href="manifest.webmanifest?v=1">
+<base target="_blank">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,650&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f7f2e9;--paper:#fffdf8;--ink:#2a2723;--muted:#7a7166;--line:#e7dfd2;--tomato:#c8502c;--herb:#4c7449;--r:14px}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "DM Sans",-apple-system,system-ui,sans-serif}
+  button,input,select{font:inherit;color:inherit}
+  h1,h2,h3{font-family:"Fraunces",Georgia,serif;font-weight:650;margin:0;letter-spacing:-.01em}
+  .wrap{max-width:1180px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom))}
+  header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between;margin-bottom:16px}
+  header h1{font-size:28px;line-height:1.1}
+  header h1 em{font-style:normal;color:var(--tomato)}
+  .sub{color:var(--muted);font-size:14px;margin-top:4px}
+  .weeknav{display:flex;align-items:center;gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:4px}
+  .weeknav button{border:0;background:transparent;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:20px}
+  .weeknav .lbl{min-width:160px;text-align:center;font-weight:600;font-size:14px;cursor:pointer}
+  .weeknav .lbl small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+  .notice{background:#fff4d6;border:1px solid #efd99a;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:14px;display:flex;gap:10px;align-items:flex-start}
+  .notice[hidden]{display:none}
+  .notice button{margin-left:auto;border:0;background:transparent;font-size:18px;cursor:pointer;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:20px;align-items:start}
+  .panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+  .panel h2{font-size:21px;margin-bottom:10px;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .panel h2 small{font-family:"DM Sans";font-size:13px;color:var(--muted);font-weight:400}
+  .day{border-top:1px solid var(--line);padding:12px 0}
+  .day:first-child{border-top:0;padding-top:0}
+  .dayname{font-weight:600;margin-bottom:6px}
+  .dayname small{color:var(--muted);font-weight:400;margin-left:6px}
+  .day.today .dayname{color:var(--tomato)}
+  .menu{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:10px;background:var(--bg);margin-bottom:6px}
+  .menu .dish{flex:1;min-width:0;cursor:pointer}
+  .menu .dish b{display:block;font-weight:600}
+  .menu .dish span{font-size:13px;color:var(--muted)}
+  .menu .dish span.err{color:var(--tomato)}
+  .menu{flex-wrap:wrap}
+  .menu.review{background:#fff4d6;border:1px solid #efd99a}
+  .menu .dish span.rev{color:var(--ink)}
+  .warn{color:var(--tomato);font-weight:600}
+  .pill.okb{background:var(--herb);color:#fff;border-color:var(--herb);font-weight:600}
+  .pill{font-size:13px;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 11px;cursor:pointer;white-space:nowrap}
+  .icon{border:0;background:transparent;cursor:pointer;color:var(--muted);font-size:17px;padding:6px 8px;border-radius:8px}
+  .spinner{width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--tomato);border-radius:50%;display:inline-block;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  form.add{display:flex;gap:6px}
+  form.add input[type=text]{flex:1;min-width:0;border:1px dashed #d6cbb9;background:transparent;border-radius:10px;padding:8px 10px;font-size:16px}
+  form.add input[type=text]:focus{outline:none;border-style:solid;border-color:var(--tomato);background:var(--paper)}
+  form.add select{border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:0 6px;font-size:14px}
+  form.add button{border:0;background:var(--tomato);color:#fff;border-radius:10px;min-width:42px;cursor:pointer;font-weight:600;font-size:18px}
+  .btn{border:1px solid var(--ink);background:var(--ink);color:var(--paper);border-radius:10px;padding:9px 14px;cursor:pointer;font-weight:600;font-size:14px}
+  .btn.ghost{background:transparent;color:var(--ink)}
+  .btn:disabled{opacity:.5}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+  .progress{height:6px;background:var(--bg);border-radius:6px;overflow:hidden;margin-bottom:12px}
+  .progress i{display:block;height:100%;background:var(--herb);transition:width .3s}
+  .cat{margin:14px 0 2px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--herb);font-weight:600}
+  .item{display:flex;gap:12px;align-items:flex-start;padding:8px 4px;border-radius:8px;cursor:pointer}
+  .item input{margin-top:3px;accent-color:var(--herb);width:20px;height:20px;flex:none}
+  .item .t{flex:1}
+  .item .t b{font-weight:600}
+  .item .t small{display:block;color:var(--muted);font-size:12px}
+  .item.done .t{text-decoration:line-through;color:var(--muted)}
+  .item.done .t b{color:var(--muted)}
+  details.pantry{margin-top:14px;border-top:1px solid var(--line);padding-top:8px}
+  details.pantry summary{cursor:pointer;color:var(--muted);font-size:14px}
+  .empty{color:var(--muted);font-size:14px;padding:8px 0}
+  .status{font-size:13px;color:var(--muted);margin-top:8px;min-height:1.2em}
+  .status a,.modal a{color:var(--tomato)}
+  .tabbar{display:none}
+  .home{margin:0 0 14px;padding:12px;border-radius:12px;background:#eef3ff;border:1px solid #d6e0f5}
+  .home-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+  .home-head b{font-family:"Fraunces",Georgia,serif;font-size:17px}
+  .vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+  .chip{display:inline-flex;align-items:center;gap:2px;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:3px 4px 3px 10px;font-size:13.5px}
+  .chip button{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 6px}
+  .review{margin-top:10px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .ri{display:flex;gap:8px;align-items:center;padding:4px 0}
+  .ri input{width:18px;height:18px;accent-color:var(--herb)}
+  .ri small{color:var(--muted)}
+  .hometag{font-size:11.5px;color:#3d5a99;font-weight:600;white-space:nowrap}
+  .ideas{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+  .ideas-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .ideas-head b{font-family:"Fraunces",Georgia,serif;font-size:17px;margin-right:4px}
+  .ideas-head input{flex:1;min-width:160px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:16px;background:var(--paper)}
+  .idea{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;background:#e3ecdf;margin-top:8px}
+  .idea .t{flex:1;min-width:180px}
+  .idea .t small{display:block;color:var(--muted);font-size:12.5px;line-height:1.4}
+  a.pill{text-decoration:none;color:var(--ink)}
+  .scrim{position:fixed;inset:0;background:rgba(42,39,35,.45);display:none;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto;z-index:20}
+  .scrim.on{display:flex}
+  .modal{background:var(--paper);border-radius:var(--r);max-width:620px;width:100%;padding:20px;position:relative}
+  .modal h3{font-size:23px;padding-right:34px}
+  .modal .meta{color:var(--muted);font-size:14px;margin:4px 0 12px}
+  .modal .close{position:absolute;top:10px;right:10px;font-size:22px}
+  .modal h4{margin:16px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--herb)}
+  .modal ul,.modal ol{margin:0;padding-left:20px}
+  .modal li{margin-bottom:5px}
+  .modal .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+  .modal form{display:flex;gap:6px;margin-top:10px}
+  .modal form input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:15px}
+  @media (max-width:900px){
+    .grid{grid-template-columns:1fr}
+    header h1{font-size:24px}
+    body[data-view=plan] #listPanel{display:none}
+    body[data-view=liste] #planPanel{display:none}
+    .tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--line);padding:6px 10px calc(6px + env(safe-area-inset-bottom));gap:8px;z-index:10}
+    .tabbar button{flex:1;border:0;background:transparent;padding:10px;border-radius:10px;font-weight:600;color:var(--muted)}
+    .tabbar button.on{background:var(--ink);color:var(--paper)}
+  }
+</style>
+</head>
+<body data-view="plan">
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Menüplaner <em>OTW70</em></h1>
+      <div class="sub">Menü eintragen → Rezept wird gesucht → Einkaufsliste entsteht von selbst.</div>
+    </div>
+  </header>
+
+  <div class="notice" id="iosHint" hidden>
+    <div>📱 <b>Als App aufs iPhone:</b> In Safari unten auf <b>Teilen</b> (Quadrat mit Pfeil) tippen → <b>«Zum Home-Bildschirm»</b>.</div>
+    <button id="iosHintClose" aria-label="Schliessen">✕</button>
+  </div>
+  <div class="notice" id="notice" hidden><div id="noticeText"></div></div>
+
+  <div class="grid">
+    <section class="panel" id="planPanel">
+      <h2>Menüvorschläge <small id="syncState"></small></h2>
+      <div id="days"></div>
+      <div class="ideas">
+        <div class="ideas-head"><b>💡 Keine Idee?</b>
+          <input type="text" id="wishInput" placeholder="Lust auf … (optional, z.B. Pasta, Fisch, vegi)" maxlength="60" enterkeyhint="search">
+          <button class="btn" id="ideaBtn" type="button">Vorschläge</button>
+          <button class="btn ghost" id="ideaHomeBtn" type="button">🏠 Aus Vorrat</button></div>
+        <div id="ideaList"></div>
+      </div>
+    </section>
+    <section class="panel" id="listPanel">
+      <h2>Einkaufsliste <small id="listCount"></small></h2>
+      <div class="home">
+        <div class="home-head"><b>🏠 Zu Hause</b>
+          <label class="btn" for="photoInput">📷 Kühlschrank fotografieren</label>
+          <input type="file" id="photoInput" class="vh" accept="image/*" multiple></div>
+        <div id="homeReview"></div>
+        <div id="homeList"></div>
+      </div>
+      <div class="progress"><i id="prog" style="width:0"></i></div>
+      <div class="actions">
+        <button class="btn" id="saveDrive">In Drive speichern</button>
+        <button class="btn ghost" id="copyList">Kopieren</button>
+        <button class="btn ghost" id="clearDone">Häkchen zurücksetzen</button>
+        <button class="btn ghost" id="newList">Neue Liste</button>
+      </div>
+      <div id="list"></div>
+      <form class="add" id="extraForm" style="margin-top:14px">
+        <input type="text" id="extraInput" placeholder="Zusätzlich einkaufen … (z.B. Kaffee)" maxlength="100" enterkeyhint="done">
+        <button type="submit">+</button>
+      </form>
+      <div class="status" id="status"></div>
+    </section>
+  </div>
+</div>
+
+<nav class="tabbar">
+  <button data-v="plan" class="on">🍽 Menüs</button>
+  <button data-v="liste">🛒 Einkaufsliste <span id="tabCount"></span></button>
+</nav>
+
+<div class="scrim" id="scrim"><div class="modal" id="modal"></div></div>
+
+<script>
+(function(){
+  var DAYS=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
+  var CATS=["Gemüse & Früchte","Fleisch & Fisch","Milchprodukte & Eier","Brot & Backwaren","Teigwaren, Reis & Getreide","Konserven, Saucen & Öle","Gewürze & Kräuter","Tiefkühl","Getränke","Diverses","Zusätzlich"];
+  var weekOffset=0, state={menus:[],checks:[],extras:[]}, pending=0, searching={}, openId=null, pollTimer=null;
+
+  var $=function(s){return document.querySelector(s);};
+  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+  function norm(s){return String(s||"").toLowerCase().trim().replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").replace(/(en|n|e|s)$/,"")||"x";}
+  function norm2(s){ return String(s||"").toLowerCase().replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss").replace(/[^a-z0-9]+/g," ").trim(); }
+  function mismatch(m){ if(!m.recipe) return false; var t=norm2(m.recipe.title), w=norm2(m.dish).split(" ").filter(function(x){return x.length>=4;}); if(!w.length) return false;
+    return !w.some(function(x){ return t.indexOf(x.slice(0,Math.max(4,x.length-2)))>=0; }); }
+  /* Daten: Google-Apps-Script im Sheet «Menüplaner OTW70 – Daten» (Funktion doPost, siehe apps-script.gs) */
+  var EXEC="https://script.google.com/macros/s/AKfycbxVfLNht4FOfKmny9I3tHu3I5snY3j_UhseaxcCO3IctCdv_lJe032gWx4mD60CIZMvuA/exec";
+  function run(fn){ var args=[].slice.call(arguments,1);
+    return fetch(EXEC,{method:"POST",body:JSON.stringify({action:fn,args:args}),credentials:"omit"})
+      .then(function(r){ return r.text(); })
+      .then(function(t){ var d; try{ d=JSON.parse(t); }catch(e){ throw new Error("Keine Verbindung zum Server – bitte später nochmals versuchen."); }
+        if(!d.ok) throw new Error(d.error||"Unbekannter Fehler"); return d.result; }); }
+
+  function mondayOf(o){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7)+o*7);return d;}
+  function isoWeek(date){var d=new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate()));var dn=d.getUTCDay()||7;d.setUTCDate(d.getUTCDate()+4-dn);var y0=new Date(Date.UTC(d.getUTCFullYear(),0,1));return {y:d.getUTCFullYear(),w:Math.ceil(((d-y0)/864e5+1)/7)};}
+  function weekKey(){return "alle";}
+  function weekLabel(){return new Date().toLocaleDateString("de-CH",{day:"numeric",month:"long",year:"numeric"});}
+  function fmtDate(d){return d.toLocaleDateString("de-CH",{day:"numeric",month:"short"});}
+  function notice(t){ if(!t){$("#notice").hidden=true;return;} $("#noticeText").innerHTML=t; $("#notice").hidden=false; }
+  function errText(e){ return esc((e&&e.message)||e||"Fehler"); }
+
+  // ---------- laden / synchronisieren ----------
+  function load(silent){
+    var wk=weekKey();
+    if(!silent) $("#syncState").textContent="lädt …";
+    return run("getState",wk).then(function(s){
+      if(s.week!==weekKey()||pending>0) return;
+      state=s; $("#syncState").textContent=""; notice(""); render();
+    }).catch(function(e){ $("#syncState").textContent=""; notice("Daten konnten nicht geladen werden: "+errText(e)); });
+  }
+  function startPolling(){ clearInterval(pollTimer); pollTimer=setInterval(function(){ if(!document.hidden && pending===0) load(true); },15000); }
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden) load(true); });
+
+  // ---------- Aktionen ----------
+  function op(p){ pending++; return p.then(function(v){pending--;return v;},function(e){pending--;throw e;}); }
+
+  function addMenu(day,dish,portions,url){
+    var tmp={id:"tmp"+Date.now(),day:day,dish:dish,portions:portions,status:"searching",recipe:null,createdAt:Date.now()};
+    state.menus.push(tmp); searching[tmp.id]=1; render();
+    op(run("addMenu",weekKey(),day,dish,portions)).then(function(id){
+      delete searching[tmp.id]; tmp.id=id; searching[id]=1;
+      return load(true).then(function(){ return search(id,url?"review:"+url:"first"); });
+    }).catch(function(e){ delete searching[tmp.id]; notice("Speichern fehlgeschlagen: "+errText(e)); load(true); });
+  }
+  function search(id,mode){
+    searching[id]=1; render();
+    return op(run("findRecipe",id,mode)).catch(function(e){ notice("Rezeptsuche fehlgeschlagen: "+errText(e)); })
+      .then(function(){ delete searching[id]; return load(true); })
+      .then(function(){ if(openId===id) showRecipe(id); });
+  }
+  function toggle(key,done){
+    var li=listItems[key]; if(!done && li && isHome(li)){ var hb=norm(li.name); var hit=(state.home||[]).filter(function(h){ var a=h.key; return a===hb||(a.length>=4&&hb.length>=4&&(a.indexOf(hb)>=0||hb.indexOf(a)>=0)); });
+      state.home=(state.home||[]).filter(function(h){ return hit.indexOf(h)<0; }); renderList(); hit.forEach(function(h){ op(run("removeHome",h.key)).catch(function(e){notice(errText(e));}); });
+      if(state.checks.indexOf(key)<0) return; }
+    var i=state.checks.indexOf(key);
+    if(done&&i<0) state.checks.push(key); if(!done&&i>=0) state.checks.splice(i,1);
+    renderList();
+    op(run("setCheck",weekKey(),key,done)).catch(function(e){ notice("Konnte nicht speichern: "+errText(e)); });
+  }
+
+  // ---------- Einkaufsliste ----------
+  var BASE={g:["g",1],kg:["g",1000],ml:["ml",1],cl:["ml",10],dl:["ml",100],l:["ml",1000]};
+  function fq(b,a){ var r=function(n){return String(Math.round(n*10)/10).replace(".",",");};
+    if(b==="g") return a>=1000? r(a/1000)+" kg": r(a)+" g";
+    if(b==="ml") return a>=1000? r(a/1000)+" l": a>=100? r(a/100)+" dl": r(a)+" ml";
+    if(WHOLE.indexOf(b)>=0) a=Math.ceil(a-0.01);
+    return r(a)+(b?" "+b:""); }
+  var WHOLE=["","Stk","Dose","Pck.","Becher","Bund","Glas","Kopf","Knolle","Rolle","Stange","Topf"];
+  function buildList(){
+    var items={}, order=[];
+    state.menus.forEach(function(m){ if(!m.recipe||m.status!=="ok") return;
+      m.recipe.ingredients.forEach(function(g){
+        var k=norm(g.name);
+        if(!items[k]){ items[k]={key:k,name:g.name,category:g.category,pantry:g.pantry,qty:{},vague:false,dishes:[]}; order.push(k); }
+        var it=items[k]; if(it.dishes.indexOf(m.dish)<0) it.dishes.push(m.dish);
+        it.pantry=it.pantry&&g.pantry;
+        if(g.amount==null){ it.vague=true; return; }
+        var bu=BASE[(g.unit||"").toLowerCase()]||[g.unit||"",1];
+        it.qty[bu[0]]=(it.qty[bu[0]]||0)+g.amount*bu[1];
+      });
+    });
+    var list=order.map(function(k){ var it=items[k];
+      var parts=Object.keys(it.qty).map(function(b){return fq(b,it.qty[b]);});
+      it.qtyText=parts.join(" + ")||(it.vague?"nach Bedarf":""); return it; });
+    state.extras.forEach(function(x){ list.push({key:"x-"+x.id,extraId:x.id,name:x.text,category:"Zusätzlich",pantry:false,qtyText:"",dishes:[]}); });
+    return list;
+  }
+  function isHome(it){ var b=norm(it.name); return (state.home||[]).some(function(h){ var a=h.key; return a===b||(a.length>=4&&b.length>=4&&(a.indexOf(b)>=0||b.indexOf(a)>=0)); }); }
+  function isDone(it){ return state.checks.indexOf(it.key)>=0 || isHome(it); }
+
+  // ---------- Darstellung ----------
+  function render(){ renderDays(); renderList(); }
+  function renderDays(){
+    var inp=$("#dishInput"), draft=inp?inp.value:"", foc=!!inp&&document.activeElement===inp, pers=$("#persSel")?$("#persSel").value:"4";
+    var ms=state.menus.slice().sort(function(a,b){return a.createdAt-b.createdAt;});
+    var h='<form class="add" id="addForm"><input type="text" id="dishInput" placeholder="Menüvorschlag … z.B. Älplermagronen" maxlength="200" enterkeyhint="go" value="'+esc(draft)+'">'+
+      '<select id="persSel" aria-label="Personen" title="Anzahl Personen">'+[1,2,3,4,5,6,8,10,12].map(function(n){return '<option value="'+n+'"'+(String(n)===pers?' selected':'')+'>'+n+' P.</option>';}).join("")+'</select>'+
+      '<button type="submit" aria-label="Hinzufügen">+</button></form><div style="height:12px"></div>';
+    if(!ms.length) h+='<div class="empty">Noch keine Vorschläge. Gib oben ein Menü ein – das Rezept wird automatisch gesucht und die Zutaten landen sofort auf der Einkaufsliste.</div>';
+    ms.forEach(function(m){
+      var busy=searching[m.id]||(m.status==="searching"&&!m.recipe), info, rev=!busy&&m.status==="review"&&m.recipe;
+      if(busy) info='<span><i class="spinner"></i>Rezept wird gesucht …</span>';
+      else if(m.status==="error") info='<span class="err">'+esc(m.error||"Kein Rezept gefunden")+'</span>';
+      else if(rev) info='<span class="rev">Zur Kontrolle – gefunden: <b>'+esc(m.recipe.title)+'</b> · '+m.portions+' Pers.'+(m.recipe.source?' ('+esc(m.recipe.source)+')':'')+(mismatch(m)?' <span class="warn">⚠ weicht ab?</span>':'')+'</span>';
+        else if(m.recipe) info='<span>'+esc(m.recipe.title)+' · '+m.portions+' Pers.'+(m.recipe.time?' · '+esc(m.recipe.time):'')+'</span>';
+      else info='<span></span>';
+      h+='<div class="menu'+(rev?' review':'')+'"><div class="dish" data-act="show" data-id="'+esc(m.id)+'"><b>'+esc(m.dish)+'</b>'+info+'</div>'+
+        (rev?'<button class="pill okb" data-act="confirm" data-id="'+esc(m.id)+'">✓ Passt</button><button class="pill" data-act="next" data-id="'+esc(m.id)+'">Anderes</button>':'')+(m.recipe?'<button class="pill" data-act="show" data-id="'+esc(m.id)+'">Rezept</button>':'')+
+        ((!busy&&!m.recipe&&m.id.indexOf("tmp")!==0)?'<button class="pill" data-act="retry" data-id="'+esc(m.id)+'">Nochmals</button>':'')+
+        '<button class="icon" data-act="del" data-id="'+esc(m.id)+'" aria-label="Entfernen">✕</button></div>';
+    });
+    $("#days").innerHTML=h;
+    if(foc){ var el=$("#dishInput"); if(el) el.focus(); }
+  }
+  var listItems={};
+  var reviewItems=null;
+  function renderHomeList(){ var h=state.home||[];
+    $("#homeList").innerHTML = h.length ? '<div class="chips">'+h.map(function(x){ return '<span class="chip">'+esc(x.name)+'<button data-act="delhome" data-id="'+esc(x.key)+'" aria-label="Entfernen">✕</button></span>'; }).join("")+'<button class="pill" data-act="clearhome">Alle löschen</button></div>'
+      : (reviewItems?'':'<div class="empty" style="padding:6px 0 0">Kühlschrank oder Vorrat fotografieren – erkannte Zutaten werden auf der Liste als «zu Hause» abgehakt, und du bekommst Menüideen daraus.</div>'); }
+  function renderReview(){ var el=$("#homeReview"); if(!reviewItems){ el.innerHTML=""; return; }
+    el.innerHTML='<div class="review"><b>Erkannt – bitte prüfen:</b>'+(reviewItems.length?'':'<div class="empty">Nichts erkannt. Du kannst Zutaten unten von Hand ergänzen.</div>')+
+      reviewItems.map(function(x,i){ return '<label class="ri"><input type="checkbox" data-ri="'+i+'"'+(x.on?' checked':'')+'> <span>'+esc(x.name)+(x.menge?' <small>('+esc(x.menge)+')</small>':'')+(x.sicher?'':' <small>– unsicher</small>')+'</span></label>'; }).join("")+
+      '<form id="riAdd" class="add" style="margin-top:8px"><input type="text" id="riText" placeholder="Fehlt etwas? z.B. Butter, Senf" maxlength="50"><button type="submit">+</button></form>'+
+      '<div class="actions" style="margin:10px 0 0"><button class="btn" data-act="homeok" type="button">Übernehmen &amp; Menüideen</button><button class="btn ghost" data-act="homecancel" type="button">Verwerfen</button></div></div>'; }
+  function fileToJpeg(file){ return new Promise(function(res,rej){ var url=URL.createObjectURL(file), img=new Image();
+    img.onload=function(){ var m=1280, w=img.naturalWidth, h=img.naturalHeight, s=Math.min(1,m/Math.max(w,h)), cv=document.createElement("canvas");
+      cv.width=Math.round(w*s); cv.height=Math.round(h*s); cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height); URL.revokeObjectURL(url); res(cv.toDataURL("image/jpeg",0.72).split(",")[1]); };
+    img.onerror=function(){ URL.revokeObjectURL(url); rej(new Error("Foto konnte nicht gelesen werden.")); }; img.src=url; }); }
+  function renderList(){ renderHomeList();
+    var list=buildList(), main=list.filter(function(i){return !i.pantry;}), pantry=list.filter(function(i){return i.pantry;});
+    var done=main.filter(isDone).length;
+    $("#listCount").textContent=main.length? done+" von "+main.length+" erledigt":"";
+    $("#tabCount").textContent=main.length? "("+(main.length-done)+")":"";
+    $("#prog").style.width=main.length?(done/main.length*100)+"%":"0";
+    listItems={}; list.forEach(function(i){listItems[i.key]=i;});
+    if(!list.length){ $("#list").innerHTML='<div class="empty">Noch leer. Trage ein Menü ein – sobald das Rezept gefunden ist, erscheinen die Zutaten hier.</div>'; return; }
+    function row(it){ return '<label class="item'+(isDone(it)?' done':'')+'" data-key="'+esc(it.key)+'"><input type="checkbox"'+(isDone(it)?' checked':'')+'>'+
+      '<span class="t">'+(it.qtyText?esc(it.qtyText)+' ':'')+'<b>'+esc(it.name)+'</b>'+(isHome(it)?' <span class="hometag">🏠 zu Hause</span>':'')+(it.dishes.length?'<small>für '+esc(it.dishes.join(", "))+'</small>':'')+'</span>'+
+      (it.extraId?'<button class="icon" data-act="delextra" data-id="'+esc(it.extraId)+'" aria-label="Entfernen">✕</button>':'')+'</label>'; }
+    var h="";
+    CATS.forEach(function(c){
+      var its=main.filter(function(i){return i.category===c;}).sort(function(a,b){return (isDone(a)-isDone(b))||a.name.localeCompare(b.name,"de");});
+      if(its.length) h+='<div class="cat">'+esc(c)+'</div>'+its.map(row).join("");
+    });
+    if(pantry.length) h+='<details class="pantry"'+(($("details.pantry")||{}).open?' open':'')+'><summary>Vorrat prüfen ('+pantry.length+'): '+esc(pantry.map(function(p){return p.name;}).join(", "))+'</summary>'+pantry.map(row).join("")+'</details>';
+    $("#list").innerHTML=h;
+  }
+  function showRecipe(id){
+    var m=state.menus.filter(function(x){return x.id===id;})[0]; if(!m) return; openId=id;
+    var r=m.recipe, busy=searching[id];
+    var h='<button class="icon close" data-act="close" aria-label="Schliessen">✕</button><h3>'+esc(r?r.title:m.dish)+'</h3>';
+    if(r){
+      h+='<div class="meta">Für <select id="portSel">'+[1,2,3,4,5,6,8,10,12].map(function(n){return '<option'+(n===m.portions?' selected':'')+'>'+n+'</option>';}).join("")+'</select> Personen'+(r.time?' · '+esc(r.time):'')+(r.url?' · <a href="'+esc(r.url)+'">Original bei '+esc(r.source||"Quelle")+'</a>':'')+'</div>';
+      h+='<h4>Zutaten</h4><ul>'+r.ingredients.map(function(i){return '<li>'+esc(i.text)+'</li>';}).join("")+'</ul>';
+      if(r.steps&&r.steps.length) h+='<h4>Zubereitung</h4><ol>'+r.steps.map(function(s){return '<li>'+esc(s)+'</li>';}).join("")+'</ol>';
+    } else h+='<div class="meta">'+(busy?'<i class="spinner"></i>Rezept wird gesucht …':esc(m.error||"Noch kein Rezept."))+'</div>';
+    if(m.status==="review"&&r) h+='<p class="meta" style="margin-top:14px">'+(mismatch(m)?'<span class="warn">⚠ Der Rezeptname weicht von «'+esc(m.dish)+'» ab.</span> ':'')+'Passt das Rezept? Erst nach «Übernehmen» kommen die Zutaten auf die Einkaufsliste und die E-Mail wird versendet.</p>';
+    h+='<div class="row">'+(m.status==="review"&&r?'<button class="btn" data-act="confirm" data-id="'+esc(id)+'">✓ Rezept übernehmen</button>':'')+'<button class="btn ghost" data-act="next" data-id="'+esc(id)+'"'+(busy?' disabled':'')+'>Anderes Rezept</button>'+
+       '<a href="https://www.google.com/search?q='+encodeURIComponent("Rezept "+m.dish)+'">Im Web stöbern</a></div>'+
+       '<form id="urlForm"><input type="url" id="urlInput" placeholder="Eigenen Rezept-Link einfügen (z.B. Fooby, Betty Bossi)"><button class="btn" type="submit"'+(busy?' disabled':'')+'>Übernehmen</button></form>';
+    $("#modal").innerHTML=h; $("#scrim").classList.add("on");
+    var ps=$("#portSel"); if(ps) ps.onchange=function(){ var n=Number(ps.value); m.portions=n;
+      op(run("setPortions",id,n)).then(function(){return load(true);}).then(function(){ if(openId===id) showRecipe(id); }).catch(function(e){notice(errText(e));}); };
+    $("#urlForm").onsubmit=function(e){ e.preventDefault(); var u=$("#urlInput").value.trim(); if(!/^https?:\/\//.test(u)) return; search(id,u); showRecipe(id); };
+  }
+  var ideas=[];
+  function renderIdeas(){ var el=$("#ideaList");
+    el.innerHTML=ideas.map(function(x,i){ return '<div class="idea"><div class="t"><b>'+esc(x.title)+'</b>'+(x.description?'<small>'+esc(x.description)+'</small>':'')+'</div>'+
+      '<a class="pill" href="'+esc(x.url)+'" target="_blank" rel="noopener">Ansehen</a><button class="pill okb" data-act="takeidea" data-i="'+i+'">+ Nehmen</button></div>'; }).join(""); }
+  function loadIdeas(fromHome){ var b=fromHome?$("#ideaHomeBtn"):$("#ideaBtn"), w=$("#wishInput").value.trim(); b.disabled=true;
+    $("#ideaList").innerHTML='<div class="empty"><i class="spinner"></i>Suche Ideen bei Swissmilk …</div>';
+    run(fromHome?"suggestFromHome":"suggestIdeas",w).then(function(r){ ideas=r||[];
+      if(!ideas.length) $("#ideaList").innerHTML='<div class="empty">Keine Ideen gefunden – anderes Stichwort probieren.</div>'; else renderIdeas(); })
+      .catch(function(e){ $("#ideaList").innerHTML='<div class="empty">Ideen konnten nicht geladen werden: '+errText(e)+'</div>'; })
+      .then(function(){ b.disabled=false; if(!fromHome) b.textContent="Andere Vorschläge"; }); }
+  function closeModal(){ $("#scrim").classList.remove("on"); openId=null; }
+
+  // ---------- Export ----------
+  function groups(){
+    var list=buildList().filter(function(i){return !i.pantry;});
+    return CATS.map(function(c){ return {cat:c, items:list.filter(function(i){return i.category===c&&!isDone(i);}).map(function(i){return (i.qtyText?i.qtyText+" ":"")+i.name;})}; })
+      .filter(function(g){return g.items.length;});
+  }
+  function pantryNames(){ return buildList().filter(function(i){return i.pantry;}).map(function(i){return i.name;}); }
+  function asText(){
+    var l=["🛒 Einkaufsliste "+weekLabel(),""];
+    groups().forEach(function(g){ l.push(g.cat.toUpperCase()); g.items.forEach(function(t){l.push("☐ "+t);}); l.push(""); });
+    var p=pantryNames(); if(p.length) l.push("Vorrat prüfen: "+p.join(", "));
+    return l.join("\n");
+  }
+
+  // ---------- Ereignisse ----------
+  document.addEventListener("submit",function(e){
+    var f=e.target;
+    if(f.id==="addForm"){ e.preventDefault();
+      var inp=$("#dishInput"), dish=inp.value.trim(); if(!dish) return;
+      inp.value=""; inp.blur(); addMenu(0,dish,Number($("#persSel").value)||4);
+    } else if(f.id==="riAdd"){ e.preventDefault();
+      var rt=$("#riText").value.trim(); if(!rt||!reviewItems) return; reviewItems.push({name:rt,menge:"",sicher:true,on:true}); renderReview(); var ri=$("#riText"); if(ri) ri.focus();
+    } else if(f.id==="extraForm"){ e.preventDefault();
+      var t=$("#extraInput").value.trim(); if(!t) return; $("#extraInput").value="";
+      state.extras.push({id:"tmp"+Date.now(),text:t}); renderList();
+      op(run("addExtra",weekKey(),t)).then(function(){return load(true);}).catch(function(er){notice(errText(er));});
+    }
+  });
+  document.addEventListener("click",function(e){
+    var b=e.target.closest("[data-act]");
+    if(b){ var id=b.getAttribute("data-id"), a=b.getAttribute("data-act");
+      if(a==="show") showRecipe(id);
+      else if(a==="close") closeModal();
+      else if(a==="homecancel"){ reviewItems=null; renderReview(); renderHomeList(); }
+      else if(a==="homeok"){ var names=(reviewItems||[]).filter(function(x){return x.on;}).map(function(x){return x.name;}); reviewItems=null; renderReview();
+        names.forEach(function(n){ var k=norm(n); if(!(state.home||[]).some(function(h){return h.key===k;})) (state.home=state.home||[]).push({key:k,name:n}); }); renderList();
+        op(run("setHome",names)).then(function(){ return load(true); }).then(function(){
+          var pb=document.querySelector('.tabbar button[data-v="plan"]'); if(pb && getComputedStyle(document.querySelector('.tabbar')).display!=="none") pb.click();
+          loadIdeas(true); setTimeout(function(){ var il=$("#ideaList"); if(il) il.scrollIntoView({behavior:"smooth",block:"center"}); },300); })
+          .catch(function(er){ notice(errText(er)); }); }
+      else if(a==="delhome"){ state.home=(state.home||[]).filter(function(h){return h.key!==id;}); renderList(); op(run("removeHome",id)).catch(function(er){notice(errText(er));}); }
+      else if(a==="clearhome"){ state.home=[]; renderList(); op(run("clearHome")).catch(function(er){notice(errText(er));}); }
+      else if(a==="takeidea"){ var k=Number(b.getAttribute("data-i")), x=ideas[k]; if(x){ addMenu(0,x.title,Number(($("#persSel")||{}).value)||4,x.url); ideas.splice(k,1); renderIdeas(); window.scrollTo(0,0); } }
+      else if(a==="retry") search(id,"first");
+      else if(a==="next"){ search(id,"next"); if(openId===id) showRecipe(id); }
+      else if(a==="confirm"){ var mm=state.menus.filter(function(x){return x.id===id;})[0]; if(mm) mm.status="ok"; render(); if(openId===id) closeModal();
+        op(run("confirmMenu",id)).then(function(){return load(true);}).catch(function(er){notice(errText(er));}); }
+      else if(a==="del"){ state.menus=state.menus.filter(function(m){return m.id!==id;}); render();
+        op(run("deleteMenu",id)).then(function(){return load(true);}).catch(function(er){notice(errText(er));}); }
+      else if(a==="delextra"){ e.preventDefault(); state.extras=state.extras.filter(function(x){return x.id!==id;}); renderList();
+        op(run("deleteExtra",id)).then(function(){return load(true);}).catch(function(er){notice(errText(er));}); }
+      return;
+    }
+    if(e.target.id==="scrim") closeModal();
+  });
+  $("#list").addEventListener("change",function(e){ var l=e.target.closest(".item"); if(l) toggle(l.getAttribute("data-key"),e.target.checked); });
+  [].forEach.call(document.querySelectorAll(".tabbar button"),function(b){ b.onclick=function(){
+    document.body.setAttribute("data-view",b.getAttribute("data-v"));
+    [].forEach.call(document.querySelectorAll(".tabbar button"),function(x){x.classList.toggle("on",x===b);}); window.scrollTo(0,0); }; });
+  $("#newList").onclick=function(){ var b=this;
+    if(!b.getAttribute("data-arm")){ b.setAttribute("data-arm","1"); b.textContent="Wirklich alles löschen?"; setTimeout(function(){ b.removeAttribute("data-arm"); b.textContent="Neue Liste"; },4000); return; }
+    b.removeAttribute("data-arm"); b.textContent="Neue Liste"; state={menus:[],checks:[],extras:[]}; render();
+    op(run("clearAll",weekKey())).then(function(){return load(true);}).catch(function(e){notice(errText(e));}); };
+  $("#saveDrive").onclick=function(){
+    if(!buildList().length){ $("#status").textContent="Die Einkaufsliste ist noch leer."; return; }
+    var btn=this; btn.disabled=true; $("#status").innerHTML='<i class="spinner"></i>Wird in der Ablage «Michèle-Livio» gespeichert …';
+    run("exportWeek",weekKey(),weekLabel().replace(" / "," "),groups(),pantryNames()).then(function(url){
+      $("#status").innerHTML='Gespeichert in der Ablage «Michèle-Livio». <a href="'+esc(url)+'">Dokument öffnen</a>';
+    }).catch(function(e){ $("#status").textContent="Speichern nicht möglich: "+((e&&e.message)||e); }).then(function(){btn.disabled=false;});
+  };
+  $("#copyList").onclick=function(){
+    var t=asText();
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){ $("#status").textContent="Liste kopiert – z.B. in WhatsApp einfügen."; },
+      function(){ var ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select();
+        try{document.execCommand("copy"); $("#status").textContent="Liste kopiert.";}catch(x){$("#status").textContent="Kopieren nicht möglich.";} ta.remove(); });
+  };
+  $("#clearDone").onclick=function(){ state.checks=[]; renderList(); op(run("resetChecks",weekKey())).catch(function(e){notice(errText(e));}); };
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeModal(); });
+  $("#ideaBtn").onclick=function(){ loadIdeas(false); };
+  $("#ideaHomeBtn").onclick=function(){ loadIdeas(true); };
+  document.addEventListener("change",function(e){ var t=e.target; if(t&&t.getAttribute&&t.getAttribute("data-ri")!=null&&reviewItems){ var x=reviewItems[Number(t.getAttribute("data-ri"))]; if(x) x.on=t.checked; } });
+  $("#photoInput").addEventListener("change",function(){ var files=[].slice.call(this.files||[]).slice(0,4); this.value=""; if(!files.length) return;
+    reviewItems=null; renderHomeList(); $("#homeReview").innerHTML='<div class="empty"><i class="spinner"></i>'+files.length+' Foto'+(files.length>1?'s':'')+' werden ausgewertet …</div>';
+    Promise.all(files.map(fileToJpeg)).then(function(imgs){ return run("analyzePhotos",imgs); }).then(function(items){
+      reviewItems=(items||[]).map(function(x){ return {name:x.name,menge:x.menge,sicher:x.sicher,on:x.sicher}; }); renderReview(); renderHomeList(); })
+      .catch(function(e){ reviewItems=null; $("#homeReview").innerHTML='<div class="empty" style="color:var(--tomato)">'+errText(e)+'</div>'; }); });
+  $("#wishInput").addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); loadIdeas(); } });
+
+  // iPhone-Hinweis
+  try{
+    var ios=/iPhone|iPad|iPod/.test(navigator.userAgent);
+    if(ios && !navigator.standalone && !localStorage.getItem("iosHintSeen")) $("#iosHint").hidden=false;
+    $("#iosHintClose").onclick=function(){ $("#iosHint").hidden=true; try{localStorage.setItem("iosHintSeen","1");}catch(x){} };
+  }catch(x){}
+
+  render(); load(); startPolling();
+})();
+</script>
+</body>
+</html>

@@ -5,8 +5,11 @@
 | Absenzen- & Ferienmeldung | https://doivil.github.io/apps/absenzen/ |
 | Tagesprogramm | https://doivil.github.io/apps/tagesprogramm/ |
 | Winterdienst BAG & HRAG | https://doivil.github.io/apps/winterdienst-bvb/ |
+| Menüplaner OTW70 (privat) | https://doivil.github.io/apps/menueplaner/ |
 
 Die Apps speichern keine Daten auf GitHub. Meldungen gehen direkt in die Google-Tabellen der Firma.
+
+Der Menüplaner arbeitet mit dem Apps-Script im Google Sheet «Menüplaner OTW70 – Daten» (Schnittstelle: `menueplaner/apps-script.gs`). Menüs, Einkaufsliste, E-Mail-Empfänger und der Gemini-Schlüssel stehen im Sheet, nicht auf GitHub.
 
 Das Tagesprogramm liest das Blatt «Baustellen» der Google-Tabelle TAGESPROGRAMM über ein Google-Apps-Script (`tagesprogramm/apps-script.gs`), nur lesend und ohne Telefonnummern und E-Mail-Adressen.
 
