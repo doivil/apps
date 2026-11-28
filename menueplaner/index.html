@@ -127,7 +127,14 @@
   .tabbar button.on{color:var(--ink);background:#efe7da}
   .tabbar .cnt{position:absolute;top:2px;left:calc(50% + 8px);background:var(--tomato);color:#fff;border-radius:999px;font-size:10.5px;padding:0 6px;line-height:17px;min-width:17px}
   .tabbar .cnt:empty{display:none}
-  .hello{margin:4px 2px 14px;color:var(--muted);font-size:15px}
+  header.appbar{display:flex;align-items:center;justify-content:flex-start;flex-wrap:nowrap;gap:11px;margin:0 0 18px}
+  .appicon{width:40px;height:40px;border-radius:11px;box-shadow:0 3px 10px rgba(60,110,80,.25)}
+  .appname{display:flex;align-items:center;gap:9px;font-family:"Fraunces",Georgia,serif;font-weight:650;font-size:22px;letter-spacing:-.01em}
+  .an2{font-family:"DM Sans",system-ui,sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;color:#fff;background:linear-gradient(135deg,#f08a5d,#c8502c);border-radius:999px;padding:3px 9px;box-shadow:0 2px 6px rgba(200,80,44,.3)}
+  .hero{margin:0 2px 20px}
+  .hero-date{font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--tomato)}
+  .hero-title{font-family:"Fraunces",Georgia,serif;font-size:34px;line-height:1.08;font-weight:650;margin-top:6px;letter-spacing:-.02em}
+  .hero-title span{background:linear-gradient(120deg,#4c9a6e,#2f7a55);-webkit-background-clip:text;background-clip:text;color:transparent}
   .tiles{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   .tile{position:relative;border:0;border-radius:22px;padding:18px 14px 16px;min-height:150px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:2px;cursor:pointer;text-align:left;color:#23201c;box-shadow:0 6px 18px rgba(80,50,20,.12);-webkit-tap-highlight-color:transparent;transition:transform .12s}
   .tile:active{transform:scale(.97)}
@@ -146,11 +153,9 @@
 </head>
 <body data-view="start">
 <div class="wrap">
-  <header>
-    <div>
-      <h1>Menüplaner <em>OTW70</em></h1>
-      <div class="sub">Menü eintragen → Rezept wird gesucht → Einkaufsliste entsteht von selbst.</div>
-    </div>
+  <header class="appbar">
+    <img src="icon-192.png?v=2" class="appicon" alt="">
+    <div class="appname">Menüplaner<span class="an2">OTW70</span></div>
   </header>
 
   <div class="notice" id="iosHint" hidden>
@@ -160,7 +165,10 @@
   <div class="notice" id="notice" hidden><div id="noticeText"></div></div>
 
   <section id="startView">
-    <div class="hello" id="hello">Was gibt's heute?</div>
+    <div class="hero">
+      <div class="hero-date" id="heroDate"></div>
+      <h1 class="hero-title" id="hello">Was gibt's heute?</h1>
+    </div>
     <div class="tiles">
       <button class="tile t-menu" type="button" data-go="plan" data-focus="dish"><span class="ti">🍽️</span><span class="badge" id="tMenuBadge"></span><b>Menüwunsch</b><small id="tMenu">eingeben</small></button>
       <label class="tile t-photo" for="photoInput"><span class="ti">📷</span><b>Kühlschrank</b><small>fotografieren</small></label>
@@ -467,7 +475,8 @@
   [].forEach.call(document.querySelectorAll(".tile[data-go]"),function(t){ t.onclick=function(){ go(t.getAttribute("data-go"));
     if(t.getAttribute("data-focus")){ var di=$("#dishInput"); if(di) di.focus(); }
     if(t.getAttribute("data-idea")){ var il=$(".ideas"); if(il) setTimeout(function(){ il.scrollIntoView({behavior:"smooth",block:"start"}); },50); loadIdeas(false); } }; });
-  (function(){ var h=new Date().getHours(); $("#hello").textContent = h<10?"Guten Morgen! Was gibt's heute?":h<17?"Hallo! Was soll's zu essen geben?":"Guten Abend! Was kochen wir?"; })();
+  (function(){ var h=new Date().getHours(); $("#hello").innerHTML = h<11?"Guten Morgen!<br><span>Was gibt's heute?</span>":h<17?"Hallo!<br><span>Was soll's geben?</span>":"Guten Abend!<br><span>Was kochen wir?</span>";
+    $("#heroDate").textContent = new Date().toLocaleDateString("de-CH",{weekday:"long",day:"numeric",month:"long"}); })();
   $("#newList").onclick=function(){ var b=this;
     if(!b.getAttribute("data-arm")){ b.setAttribute("data-arm","1"); b.textContent="Wirklich alles löschen?"; setTimeout(function(){ b.removeAttribute("data-arm"); b.textContent="Neue Liste"; },4000); return; }
     b.removeAttribute("data-arm"); b.textContent="Neue Liste"; state={menus:[],checks:[],extras:[]}; render();
